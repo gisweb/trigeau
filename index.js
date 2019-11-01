@@ -139,6 +139,10 @@ function setPrestazioni( response ){
   var anni = $('[name=tempi_ritorno]:checked').val();
 
   if (anni=='0'){
+    $("#nsi0").text("");
+    $("#nfi0").text("");
+    $("#nsiS").text("");
+    $("#nfiS").text("");    
     $("#nsr").text("");
     $("#nfr").text("");
     return;
@@ -169,6 +173,10 @@ function setPrestazioni( response ){
     nfr = "Errore: NFIo = 0 o indefinito"
   }
 
+  $("#nsi0").text((nsi0*100).toFixed(2) + ' %');
+  $("#nfi0").text((nfi0*100).toFixed(2) + ' %');
+  $("#nsiS").text((nsiS*100).toFixed(2) + ' %');
+  $("#nfiS").text((nfiS*100).toFixed(2) + ' %');
   $("#nsr").text(nsr);
   $("#nfr").text(nfr);
 
@@ -273,10 +281,7 @@ function initMap( response ){
 
   map1 = new Map({
     interactions: defaultInteractions({
-      mouseWheelZoom: false,
-      Zoom: false,
-      ZoomSlider: false,
-      dragPan: true
+      onFocusOnly: true
     }),
     target: 'principale',
     layers: [roadLayer,sottoBacini,areaStudio,reteLayer,layer_0],
