@@ -25,7 +25,10 @@
         color: #ffffff;
       }
       .secondaria {
-        margin-top: 7px;
+        margin-top: 40px;
+      }
+      .legend{
+        border:1px solid blue;
       }
 
       @media (min-width: 800px) {
@@ -44,10 +47,8 @@
     <div class="wrapper">
       <div class="half">
         <p><br></p>
-        <h5 class="title"> Tempi di ritorno</h5>
+        <h5 class="title"> &nbsp;Tempi di ritorno</h5>
         <div>
-          <input type="radio" checked name="tempi_ritorno" value="0" id="tempi_ritorno_0">
-          <label for="tempi_ritorno_0"> Nessuno</label>
           <input type="radio" name="tempi_ritorno" value="2" id="tempi_ritorno_2">
           <label for="tempi_ritorno_2"> 2 Anni</label>
           <input type="radio" name="tempi_ritorno" value="5" id="tempi_ritorno_5">
@@ -66,7 +67,7 @@
             </tr>
           </tbody>
         </table>        
-        <h5 class="title"> Prestazioni di sistema</h5>
+        <h5 class="title"> &nbsp;Prestazioni di sistema</h5>
         <table class="table table-bordered">
           <tbody>
             <tr><th> NSR [%] </th><th> NFR [%] </th></tr>
@@ -76,6 +77,11 @@
             </tr>
           </tbody>
         </table>
+        <h5 class="title"> &nbsp;Grafico</h5>
+        <canvas id="myChart" width="100%" height="80"></canvas>
+
+
+
 
       </div>
       <div class="half secondaria">
@@ -90,20 +96,6 @@
           <label for="vasca_piena"> Vasca piena</label>
         </div>
 
-        <div>
-
-          <input type="checkbox" checked name="livelli" value="grp_risultati.lay_coe_defl" id="deflusso">
-          <label for="deflusso"> Coefficienti deflusso</label>
-
-          <input type="checkbox" checked name="livelli" value="grp_risultati.lay_stress_net" id="riempimento">
-          <label for="riempimento"> Riempimento rete</label>
-
-
-          <input type="checkbox" name="livelli" value="grp_risultati_vp.lay_nodeflood" id="allagamento">
-          <label for="allagamento"> Allagamento nodi</label>
-
-
-        </div>
         <div id="secondaria" class="map"></div>
         <table class="table table-bordered">
           <tbody>
@@ -114,9 +106,25 @@
             </tr>
           </tbody>
         </table>  
+        <h5 class="title"> &nbsp;Prestazioni idrologiche</h5>
+        <table class="table table-bordered">
+          <tbody>
+            <tr><th> VR [%] </th><th> PR [%] </th></tr>
+            <tr>
+              <td><span id="vr"></span></td>    
+              <td><span id="pr"></span></td>
+            </tr>
+          </tbody>
+        </table>
+        <h5 class="title"> &nbsp;Legenda</h5>
+        <div>
+          <img src="legenda.png" />
+        </div>
       </div>
-    </div>
 
+
+
+    </div>
     <script src="index.js"></script>
 
   </body>
