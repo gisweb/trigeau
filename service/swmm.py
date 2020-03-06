@@ -44,6 +44,72 @@ def randomString(stringLength=5):
 
 class App:
 
+    result_id=datetime.today().strftime("%Y%m%d%H%M%S")
+
+    def saveData(self,rows=[],result_id='',schema_id='',table=''):
+        """
+        """
+
+        try:
+            connection = psycopg2.connect(**conn)
+
+            cursor = connection.cursor()
+
+            '''
+            #import pdb;pdb.set_trace()
+            
+
+            sql="select * from plonegis."+table+" where schema_id=%s and result_id=%s"
+            scenario='inscostiero_light'
+            result='pippo'
+
+            cursor.execute(sql,[scenario,result]) 
+            results=cursor.fetchall()
+
+            return results
+
+            '''
+            sqlInsert=""
+            if table=='rpt_subcathrunoff_sum':
+                sqlInsert="INSERT INTO plonegis."+table+"\
+                    (result_id,schema_id,subc_id,tot_precip,tot_runon,tot_evap,tot_infil,tot_runoff,tot_runofl,peak_runof,runoff_coe)\
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+            elif table=='rpt_nodeflooding_sum':
+                sqlInsert="INSERT INTO plonegis."+table+"\
+                    (result_id,schema_id,node_id,hour_flood,max_rate,time_days,time_hour,tot_flood,max_ponded)\
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+            elif table=='rpt_arcflow_sum':
+                sqlInsert="INSERT INTO plonegis."+table+"\
+                    (result_id,schema_id,arc_id,arc_type,max_flow,time_days,time_hour,max_veloc,mfull_flow,mfull_dept)\
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+            elif table=='indici':
+                sqlInsert="INSERT INTO plonegis."+table+" (result_id,schema_id,nfi,nsi) values (%s,%s,%s,%s);"
+    
+
+            sql="DELETE FROM plonegis.%s WHERE schema_id='%s';" %(table,schema_id)
+            cursor.execute(sql) 
+            connection.commit()
+
+            print (table)
+            for row in rows:
+                row=tuple([result_id,schema_id]+row)
+                print(sqlInsert %row)
+                cursor.execute(sqlInsert,row) 
+                connection.commit()
+
+        except (Exception, psycopg2.Error) as error :
+            print  ("Error while connecting to PostgreSQL", error)
+
+        finally:
+            #closing database connection.
+                if(connection):
+                    cursor.close()
+                    connection.close()
+                    print ("PostgreSQL connection is closed")
+
+
+
+
     def calcoloArea(self,imp,tipo,areaS):
         imp=int(imp)
         areaS=float(areaS)
@@ -72,27 +138,50 @@ class App:
             start=v[i]
             end=v[i+1]
             s=line[start:end]
-            if s not in["","\n"]:
+            if s not in["","\n","\r\n"]:
                 row.append(s)
         return row
+
+
+    @cherrypy.expose
+    def prova(self):
+
+        sw=SWMM5Simulation("/tmp/CS_H_ajbif_sx.inp")
+        print (sw.SWMM_Nnodes)
+        print (sw.Subcatch())
+        import pdb;pdb.set_trace()
+
+        files=sw.getFiles()
+        if isfile(files[1]):
+            print (files[1])
+            sw.OpenSwmmOutFile(files[2])
+        
     
     @cherrypy.expose
-    def simulazione(self,rete='CS',schema='H',imp='15',regime='CAM',anni='2',convpp='',convtv='',callback='',_=''):
+    def simulazione(self,rete='CS',schema='H',imp='15',regime='CAM',anni='2',drwh='',convpp='',convtv='',callback='',_=''):
+
+
+        #se drwh richiamo la stesa funzione per modificare il drwh
+        #if drwh and drwh!="DRWH_OK":
+        drwh_flag=drwh!=''
+        if drwh:    
+            self.simulazione(rete=rete,schema=schema,imp=imp,regime=regime,anni=anni)
+            imp=int((int(imp)-30)/0.7)
 
         #apro il file di base e sostituisco i valori
         filePath = "/apps/trigeau/data"
-        fileName = "%s/%s_%s.inp" %(filePath,rete,schema)
-        fileName = "%s/%s_%s.inp" %(filePath,rete,schema)
+        self.path = filePath
+        fileName = "%s/%s_%s%s.inp" %(filePath,rete,schema,drwh)
 
         zona="Chicago"
 
         rsRandom = randomString()
 
-        sxInpFile = "/tmp/%s_%s_%s_sx.inp" %(rete,schema,rsRandom)
+        sxInpFile = "/tmp/%s_%s_%s%s_sx.inp" %(rete,schema,rsRandom,drwh)
         dxInpFile = "/tmp/%s_%s_%s_dx.inp" %(rete,schema,rsRandom)
-
-        sxInpFile = "/tmp/%s_%s_sx.inp" %(rete,schema)
-        dxInpFile = "/tmp/%s_%s_dx.inp" %(rete,schema)
+        
+        #sxInpFile = "/tmp/%s_%s%s_sx.inp" %(rete,schema,drwh)
+        #dxInpFile = "/tmp/%s_%s_dx.inp" %(rete,schema)
 
         llsx=[]
         lldx=[]
@@ -181,6 +270,22 @@ class App:
         fsx.writelines(llsx)
         fsx.close() 
 
+        #SIMULAZIONE FILE DI SX
+        
+        st=SWMM5Simulation(str(sxInpFile))
+        files=st.getFiles()
+        if isfile(files[1]):
+            print (files[1])
+            self.parseReport(schema,files[1])
+        
+
+        #SE DRWH ESCO
+        if drwh or drwh_flag:
+            return str(self.result_id)
+        #ALTRIMENTI SE NON PASSO NE PP NE TV ESCO
+        elif not convpp+convtv:
+            return '0'
+
         #FILE DI DX
         #genero le righe di dx partendo dalle modifiche a sx
         #copio iol file di sx fino a LID_USAGE
@@ -216,116 +321,109 @@ class App:
         fdx.writelines(lldx)
         fdx.close() 
 
-
-        result=dict(success=0)
-
-        st=SWMM5Simulation(str(sxInpFile))
-        files=st.getFiles()
-        if isfile(files[1]):
-            print files[1]
-            result["sx"]=self.parseReport(files[1])
-
         st=SWMM5Simulation(str(dxInpFile))
         files=st.getFiles()
         if isfile(files[1]):
-            print files[1]
-            result["dx"]=self.parseReport(files[1])
+            print (files[1])
+            self.parseReport(schema,files[1])
 
-    @cherrypy.expose
-    def parseReport(self,reportfile="/tmp/CS_H_dxlbijUu.rpt"):
+        return str(self.result_id)
+
+    def parseReport(self,schema_id,reportfile=""):
+
+        result_id=self.result_id
+
+        #reportfile=self.path+schema_id+".rpt"
 
         fileRep = open(reportfile, 'r') 
         lines = fileRep.readlines()
         index = 0 
         for line in lines:
+
+            if line.strip()=='Node Summary':
+                idxNodeSum = index
+
             if line.strip()=='Subcatchment Runoff Summary':
-                idxRunoff = index
+                idxSub = index
+
+            if line.strip()=='Node Flooding Summary':
+                idxNodeFlood = index     
+
+            if line.strip()=='Link Flow Summary':
+                idxLink = index
+
             index=index+1
 
 
         ll=[]
-        index=idxRunoff+8
-        v=self.parseRow(lines[index],'SC')
+        index=idxNodeSum+8
+        v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]
+        while v!=[]:
+            if v[1]=='JUNCTION':
+                ll.append(v)
+            index=index+1
+            v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]
+
+        nodeCount=len(ll)   
+
+        ll=[]
+        index=idxSub+8
+        v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]
         while v!=[]:
             ll.append(v)
             index=index+1
-            v=self.parseRow(lines[index],'SC')
+            v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]
+
+        self.saveData(table='rpt_subcathrunoff_sum',rows=ll,result_id=result_id,schema_id=schema_id)
+
+        ll=[]
+        summMaxRate = 0
+        nsi=0
+        index=idxNodeFlood+3
+        if lines[index].strip()!="No nodes were flooded.":
+            index=index+7
+            v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]
+            while v!=[]:
+                try:
+                    if float(v[2])>0:
+                        summMaxRate=summMaxRate+float(v[2])
+                except:
+                    pass
+                ll.append(v)
+                index=index+1
+                v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]
+
+            if nodeCount>0:
+                nfi=summMaxRate/nodeCount
+
+            self.saveData(table='rpt_nodeflooding_sum',rows=ll,result_id=result_id,schema_id=schema_id)
+
+
+        ll=[]
+        count08 = 0
+        nfi = 0
+        index = idxLink + 8
+        v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]
+        while v!=[]:
+            try:
+                if float(v[7])>=0.8:
+                    count08=count08+1
+            except:
+                pass
+            ll.append(v)
+            index=index+1
+            v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]        
  
+        if len(ll)>0:
+            nsi=count08/float(len(ll))
 
-        return str(ll)
-
-
-
-
+        self.saveData(table='rpt_arcflow_sum',rows=ll,result_id=result_id,schema_id=schema_id)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        with open(reportfile,'r') as ff:
-
-            data=False
-            section=False
-            s=""
-            ll=[line.strip() for line in ff]
-            index=0
-
-            for index in range(0,len(ll)):
-                if "Subcatchment Runoff Summary" in ll[index]:
-                    break
-
-            #import pdb;pdb.set_trace()
-            if index:
-                index = index + 8
-                while ll[index].strip():
-                    data = ll[index].split(" ")
-
-                    print data
-                    #s=s + ll[index]
-                    index=index+1
-
-
-
-
-            return s
-
-            for line in ff:
-
-                if section and data:
-                    if not "-" in line:
-                        if not "*" in line:
-                            s=s+line
-
-                if "Subcatchment Runoff Summary" in line:
-                    section=True
-                if "LID Performance Summary" in line:
-                    section=False
-    
-                if section:
-                    if "Subcatchment" in line:
-                        data=True
-
-
-                    
-        return s
-
-
-
+        ###salvo gli indici
+        self.saveData(table='indici',rows=[[nfi,nsi]],result_id=result_id,schema_id=schema_id)
+        
+        return result_id
 
 
     @cherrypy.expose
