@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="it" >
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title> Scenari Trigeau </title>
+    <!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+    <script
+    src="https://code.jquery.com/jquery-2.2.4.min.js"
+    integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+    crossorigin="anonymous"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+      .map {
+        width: 100%;
+        height:500px;
+        border:1px solid grey;
+      }
+      .table th{
+        background-color: rgba(0,60,136,0.5);
+        color: #ffffff;
+      }
+      .title{
+        background-color: rgba(0,60,136,0.5);
+        color: #ffffff;
+      }
+      .secondaria {
+        margin-top: 1px !important;
+      }
+      .rangeslider {
+        width: 250px !important;
+      }
+      #sup_imp{
+        width:50px !important;
+      }
+      .myspin{
+        width:100px !important;
+      }
+
+      #loading-gif {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin: -50px 0px 0px -50px;
+      display: none;
+      }
+
+      @media (min-width: 800px) {
+        .wrapper {
+          display: flex !important;
+        }
+        .half {
+          padding: 0 10px;
+          width: 50% !important;
+          float: left;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div id="left_map" class="half">
+        <div style="clear: left;">
+
+          <span> Superficie impermeabile: </span> <br />
+          <input type="radio" checked name="sup_impermeabile" value="15" id="sup_impermeabile_15">
+          <label for="sup_impermeabile_15"> 15% </label>
+          <input type="radio" checked name="sup_impermeabile" value="30" id="sup_impermeabile_30">
+          <label for="sup_impermeabile_30"> 30% </label>          
+          <input type="radio" checked name="sup_impermeabile" value="45" id="sup_impermeabile_45">
+          <label for="sup_impermeabile_45"> 45% </label>          
+          <input type="radio" checked name="sup_impermeabile" value="75" id="sup_impermeabile_75">
+          <label for="sup_impermeabile_75"> 75% </label>          
+          <input type="radio" checked name="sup_impermeabile" value="90" id="sup_impermeabile_90">
+          <label for="sup_impermeabile_90"> 90% </label>          
+        </div>
+        <div>
+          <span> Regime di precipitazione: </span> <br />
+          <input type="radio" checked name="regime" schema="H" value="CAM" id="regime_CAM">
+          <label for="regime_CAM"> temperato umido </label>
+          <input type="radio"  name="regime" schema="L" value="SOL" id="regime_SOL">
+          <label for="regime_SOL"> temperato caldo </label>
+          <input type="radio"  name="regime" schema="H" value="CAE" id="regime_CAE">
+          <label for="regime_CAE"> sublitoraneo </label>
+          <input type="radio"  name="regime" schema="L" value="TOL" id="regime_TOL">
+          <label for="regime_TOL"> mediterraneo continentale </label>
+        </div>
+        <div>
+          <span> Tipologia di rete di drenaggio: </span> <br />
+          <input type="radio" checked name="rete" value="CS" id=rete_CS">
+          <label for="rete_CS"> costiero/a pettine </label>
+          <input type="radio"  name="rete" value="H" id="rete_H">
+          <label for="rete_H"> collinare/radiale </label>
+          <input type="radio"  name="rete" value="M" id="rete_M">
+          <label for="rete_M"> ad elevata pendenza </label>
+        </div>
+        <div>
+          <span> Frequenza evento precipitazione: </span> <br />
+          <input type="radio" name="tempi_ritorno" value="2" id="tempi_ritorno_2">
+          <label for="tempi_ritorno_2"> 2 Anni</label>
+          <input type="radio" name="tempi_ritorno" value="5" id="tempi_ritorno_5">
+          <label for="tempi_ritorno_5"> 5 Anni</label>
+          <input type="radio" name="tempi_ritorno" value="10" id="tempi_ritorno_10">
+          <label for="tempi_ritorno_10"> 10 Anni</label>
+        </div>
+
+
+        <hr />
+        <div id="principale" class="map"></div>
+        <table class="table table-bordered">
+          <tbody>
+            <tr><th> NSI [%] </th><th> NFI [%] </th></tr>
+            <tr>
+              <td><span id="nsi0"></span></td>    
+              <td><span id="nfi0"></span></td>
+            </tr>
+          </tbody>
+        </table>        
+        <h5 class="title"> &nbsp;Prestazioni di sistema</h5>
+        <table class="table table-bordered">
+          <tbody>
+            <tr><th> NSR [%] </th><th> NFR [%] </th></tr>
+            <tr>
+              <td><span id="nsr"></span></td>    
+              <td><span id="nfr"></span></td>
+            </tr>
+          </tbody>
+        </table>
+        <h5 class="title"> &nbsp;Grafico</h5>
+        <canvas id="myChart" width="100%" height="80"></canvas>
+      </div>
+
+      <div id="right_map" class="half secondaria">
+        <span> Scenari di intervento: </span>
+        <div>
+          <div id="metoriche">
+          <span> Riuso Meteoriche: </span> <br />
+          <input type="radio" name="riuso_meteoriche" value="SI" id="riuso_meteoriche_si">
+          <label for="riuso_meteoriche_si"> SI </label>
+          <input type="radio" name="riuso_meteoriche" value="NO" id="riuso_meteoriche_no">
+          <label for="riuso_meteoriche_no"> NO </label>
+        </div>
+        <div class="scenari">
+          <span> Pavimenti permeabili: </span> <br/>
+          <input type="radio" disabled name="imp_pp" value="100" id="imp_pp_100">
+          <label for="imp_pp_100"> 100% </label>  
+          <input type="radio" disabled  name="imp_pp" value="50" id="imp_pp_50">
+          <label for="imp_pp_50"> 50% </label>  
+          <input type="radio" disabled  name="imp_pp" value="30" id="imp_pp_30">
+          <label for="imp_pp_30"> 30% </label>  
+          <input type="radio" disabled  name="imp_pp" value="20" id="imp_pp_20">
+          <label for="imp_pp_20"> 20% </label>         
+          <input type="radio" checked name="imp_pp" value="0" id="imp_pp_0">
+          <label for="imp_pp_0"> 0% </label> 
+        </div>    
+        <div class="scenari">
+          <span> Tetti verdi: </span> <br/>
+          <input type="radio" disabled  name="imp_tv" value="100" id="imp_tv_100">
+          <label for="imp_tv_100"> 100% </label>  
+          <input type="radio" disabled  name="imp_tv" value="50" id="imp_tv_50">
+          <label for="imp_tv_50"> 50% </label>  
+          <input type="radio" disabled  name="imp_tv" value="30" id="imp_tv_30">
+          <label for="imp_tv_30"> 30% </label>  
+          <input type="radio" disabled  name="imp_tv" value="20" id="imp_tvp_20">
+          <label for="imp_tv_20"> 20% </label>         
+          <input type="radio" checked name="imp_tv" value="0" id="imp_tv_0">
+          <label for="imp_tv_0"> 0% </label> 
+        </div>   
+
+        <button id="setFileInp"> <img src="ing2.png" /> Esegui Simulazione </button>
+
+        <hr/>
+
+        <div id="secondaria" class="map"></div>
+        <table class="table table-bordered">
+          <tbody>
+            <tr><th> NSI [%] </th><th> NFI [%] </th></tr>
+            <tr>
+              <td><span id="nsiS"></span></td>    
+              <td><span id="nfiS"></span></td>
+            </tr>
+          </tbody>
+        </table>  
+        <h5 class="title"> &nbsp;Prestazioni idrologiche</h5>
+        <table class="table table-bordered">
+          <tbody>
+            <tr><th> VR [%] </th><th> PR [%] </th></tr>
+            <tr>
+              <td><span id="vr"></span></td>    
+              <td><span id="pr"></span></td>
+            </tr>
+          </tbody>
+        </table>
+        <h5 class="title"> &nbsp;Legenda</h5>
+        <div>
+          <img src="legenda.png" />
+        </div>
+      </div>
+
+    </div>
+    <script src="index.js"></script>
+    <img id="loading-gif" width=200 src="esecuzione.gif" />
+  </body>
+</html>
