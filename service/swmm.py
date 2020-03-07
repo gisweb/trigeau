@@ -24,6 +24,8 @@ from os.path import isfile
 from datetime import datetime
 import random
 import string
+from sld import generaSld
+
 
 localDir = os.path.dirname(__file__)
 absDir = os.path.join(os.getcwd(), localDir)
@@ -45,6 +47,10 @@ def randomString(stringLength=5):
 class App:
 
     result_id=datetime.today().strftime("%Y%m%d%H%M%S")
+
+    @cherrypy.expose
+    def trigeau_sld(self,resid=''):
+        return generaSld(resid)
 
     def saveData(self,rows=[],result_id='',schema_id='',table=''):
         """

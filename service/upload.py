@@ -24,6 +24,7 @@ from os.path import isfile
 from datetime import datetime
 import random
 import string
+from sld import base,layer,rule,style_arc,style_node,style_subcatchment
 
 localDir = os.path.dirname(__file__)
 absDir = os.path.join(os.getcwd(), localDir)
@@ -35,6 +36,7 @@ config = {
     }
 }
 
+
 def randomString(stringLength=5):
     """Generate a random string of fixed length """
     letters = string.ascii_lowercase
@@ -43,6 +45,101 @@ def randomString(stringLength=5):
 
 
 class App:
+
+
+    @cherrypy.expose
+    def trigeau_sld(self,resultid=''):
+        """
+        sld per tematizzare i risultati
+        """
+
+        connection = psycopg2.connect(**conn)
+        cursor = connection.cursor()
+        s_layer=''
+
+        v=resultid.split('-')
+        lay=v[0]
+        resultid=v[1]
+ 
+        if lay=='arc':
+            sql="SELECT 'result_arc' as layer_name,'arc_style' as layer_style,arc_id as element_id,mfull_dept*100 as val FROM plonegis.rpt_arcflow_sum WHERE result_id=%s;"
+            print (sql %(resultid, ))
+            cursor.execute(sql,(resultid, )) 
+            rows=cursor.fetchall()
+            s_rule=''
+            for row in rows:
+                element_id = row[2]
+                coeff = row[3]
+                color="#ff0000"
+                if coeff <= 50:
+                    color="#7bfd7b"
+                elif coeff<=70:
+                    color="#7bdddd"
+                elif coeff<=80:
+                    color="#ff7f00"
+                s_style = (style_arc %color).strip()    
+                s_rule = (s_rule + rule%(element_id, s_style, )).strip()
+            s_layer = s_layer + (layer %(row[0], row[1], s_rule, )).strip()
+
+        if lay=='node':
+            sql="SELECT 'result_node' as layer_name,'node_style' as layer_style,node_id as element_id,tot_flood*1000 as val FROM plonegis.rpt_nodeflooding_sum WHERE result_id=%s;"
+            cursor.execute(sql,(resultid, )) 
+            rows=cursor.fetchall()
+            s_rule=''
+            for row in rows:
+                element_id = row[2]
+                coeff = row[3]
+                color="#232323"
+                if coeff <= 1:
+                    color="#2323f7"
+                elif coeff<=5:
+                    color="#535353"
+                elif coeff<=10:
+                    color="#325780"
+                s_style = (style_node %color).strip()
+                s_rule = (s_rule + rule%(element_id, s_style, )).strip()
+            s_layer = s_layer + (layer %(row[0], row[1], s_rule, )).strip()
+
+        if lay=='sub':
+            sql="SELECT 'result_subcatchment' as layer_name,'subcatcments_style' as layer_style,subc_id as element_id,runoff_coe as val FROM plonegis.rpt_subcathrunoff_sum WHERE result_id=%s;"
+            cursor.execute(sql,(resultid, )) 
+            rows=cursor.fetchall()
+            s_rule=''
+            for row in rows:
+                element_id = row[2]
+                coeff = row[3]
+                color="#7bbcbc"
+                if coeff <= 0.13:
+                    color="#fdfdfd"
+                elif coeff<=0.48:
+                    color="#ddfddd"
+                elif coeff<=0.96:
+                    color="#7bdddd"
+                s_style = (style_subcatchment %color).strip()
+                s_rule = (s_rule + rule%(element_id, s_style, )).strip()
+            s_layer = s_layer + (layer %(row[0], row[1], s_rule, )).strip()   
+
+        cursor.close()   
+
+        s_result = (base %s_layer).strip()
+
+        connection.close()
+
+
+        return s_result
+
+
+        """
+        0.13 #fdfdfd 
+        0.48 #ddfddd #232323
+        0.96 #7bdddd #232323
+        1 
+        """
+
+
+
+
+
 
     def calcoloArea(self,imp,tipo,areaS):
         imp=int(imp)
@@ -428,8 +525,6 @@ class App:
                     cursor.close()
                     connection.close()
                     print ("PostgreSQL connection is closed")
-
-
 
 
 
