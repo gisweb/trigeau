@@ -13,7 +13,7 @@
     <style>
       .map {
         width: 100%;
-        height:500px;
+        height:650px;
         border:1px solid grey;
       }
       .table th{
@@ -65,38 +65,38 @@
           <span> Superficie impermeabile: </span> <br />
           <input type="radio" checked name="sup_impermeabile" value="15" id="sup_impermeabile_15">
           <label for="sup_impermeabile_15"> 15% </label>
-          <input type="radio" checked name="sup_impermeabile" value="30" id="sup_impermeabile_30">
+          <input type="radio" name="sup_impermeabile" value="30" id="sup_impermeabile_30">
           <label for="sup_impermeabile_30"> 30% </label>          
-          <input type="radio" checked name="sup_impermeabile" value="45" id="sup_impermeabile_45">
+          <input type="radio" name="sup_impermeabile" value="45" id="sup_impermeabile_45">
           <label for="sup_impermeabile_45"> 45% </label>          
-          <input type="radio" checked name="sup_impermeabile" value="75" id="sup_impermeabile_75">
+          <input type="radio" name="sup_impermeabile" value="75" id="sup_impermeabile_75">
           <label for="sup_impermeabile_75"> 75% </label>          
-          <input type="radio" checked name="sup_impermeabile" value="90" id="sup_impermeabile_90">
+          <input type="radio" name="sup_impermeabile" value="90" id="sup_impermeabile_90">
           <label for="sup_impermeabile_90"> 90% </label>          
         </div>
         <div>
           <span> Regime di precipitazione: </span> <br />
-          <input type="radio" checked name="regime" schema="H" value="CAM" id="regime_CAM">
+          <input type="radio" checked name="regime" schema="heavy" value="CAM" id="regime_CAM">
           <label for="regime_CAM"> temperato umido </label>
-          <input type="radio"  name="regime" schema="L" value="SOL" id="regime_SOL">
+          <input type="radio"  name="regime" schema="light" value="SOL" id="regime_SOL">
           <label for="regime_SOL"> temperato caldo </label>
-          <input type="radio"  name="regime" schema="H" value="CAE" id="regime_CAE">
+          <input type="radio"  name="regime" schema="heavy" value="CAE" id="regime_CAE">
           <label for="regime_CAE"> sublitoraneo </label>
-          <input type="radio"  name="regime" schema="L" value="TOL" id="regime_TOL">
+          <input type="radio"  name="regime" schema="light" value="TOL" id="regime_TOL">
           <label for="regime_TOL"> mediterraneo continentale </label>
         </div>
         <div>
           <span> Tipologia di rete di drenaggio: </span> <br />
-          <input type="radio" checked name="rete" value="CS" id=rete_CS">
+          <input type="radio" checked name="rete" value="inscostiero" id=rete_CS">
           <label for="rete_CS"> costiero/a pettine </label>
-          <input type="radio"  name="rete" value="H" id="rete_H">
+          <input type="radio"  name="rete" value="ins_collinare" id="rete_H">
           <label for="rete_H"> collinare/radiale </label>
-          <input type="radio"  name="rete" value="M" id="rete_M">
+          <input type="radio"  name="rete" value="ins_montano" id="rete_M">
           <label for="rete_M"> ad elevata pendenza </label>
         </div>
         <div>
           <span> Frequenza evento precipitazione: </span> <br />
-          <input type="radio" name="tempi_ritorno" value="2" id="tempi_ritorno_2">
+          <input type="radio" checked name="tempi_ritorno" value="2" id="tempi_ritorno_2">
           <label for="tempi_ritorno_2"> 2 Anni</label>
           <input type="radio" name="tempi_ritorno" value="5" id="tempi_ritorno_5">
           <label for="tempi_ritorno_5"> 5 Anni</label>
@@ -137,34 +137,34 @@
           <span> Riuso Meteoriche: </span> <br />
           <input type="radio" name="riuso_meteoriche" value="SI" id="riuso_meteoriche_si">
           <label for="riuso_meteoriche_si"> SI </label>
-          <input type="radio" name="riuso_meteoriche" value="NO" id="riuso_meteoriche_no">
+          <input type="radio" checked name="riuso_meteoriche" value="NO" id="riuso_meteoriche_no">
           <label for="riuso_meteoriche_no"> NO </label>
         </div>
         <div class="scenari">
           <span> Pavimenti permeabili: </span> <br/>
-          <input type="radio" disabled name="imp_pp" value="100" id="imp_pp_100">
-          <label for="imp_pp_100"> 100% </label>  
-          <input type="radio" disabled  name="imp_pp" value="50" id="imp_pp_50">
-          <label for="imp_pp_50"> 50% </label>  
-          <input type="radio" disabled  name="imp_pp" value="30" id="imp_pp_30">
-          <label for="imp_pp_30"> 30% </label>  
-          <input type="radio" disabled  name="imp_pp" value="20" id="imp_pp_20">
-          <label for="imp_pp_20"> 20% </label>         
-          <input type="radio" checked name="imp_pp" value="0" id="imp_pp_0">
-          <label for="imp_pp_0"> 0% </label> 
+          <input type="radio" checked name="conv_pp" value="100" id="conv_pp_100">
+          <label for="conv_pp_100"> 100% </label>  
+          <input type="radio" disabled  name="conv_pp" value="50" id="conv_pp_50">
+          <label for="conv_pp_50"> 50% </label>  
+          <input type="radio" disabled  name="conv_pp" value="30" id="conv_pp_30">
+          <label for="conv_pp_30"> 30% </label>  
+          <input type="radio" disabled  name="conv_pp" value="20" id="conv_pp_20">
+          <label for="conv_pp_20"> 20% </label>         
+          <input type="radio" name="conv_pp" value="0" id="conv_pp_0">
+          <label for="conv_pp_0"> 0% </label> 
         </div>    
         <div class="scenari">
           <span> Tetti verdi: </span> <br/>
-          <input type="radio" disabled  name="imp_tv" value="100" id="imp_tv_100">
-          <label for="imp_tv_100"> 100% </label>  
-          <input type="radio" disabled  name="imp_tv" value="50" id="imp_tv_50">
-          <label for="imp_tv_50"> 50% </label>  
-          <input type="radio" disabled  name="imp_tv" value="30" id="imp_tv_30">
-          <label for="imp_tv_30"> 30% </label>  
-          <input type="radio" disabled  name="imp_tv" value="20" id="imp_tvp_20">
-          <label for="imp_tv_20"> 20% </label>         
-          <input type="radio" checked name="imp_tv" value="0" id="imp_tv_0">
-          <label for="imp_tv_0"> 0% </label> 
+          <input type="radio" checked  name="conv_tv" value="100" id="conv_tv_100">
+          <label for="conv_tv_100"> 100% </label>  
+          <input type="radio" disabled  name="conv_tv" value="50" id="conv_tv_50">
+          <label for="conv_tv_50"> 50% </label>  
+          <input type="radio" disabled  name="conv_tv" value="30" id="conv_tv_30">
+          <label for="conv_tv_30"> 30% </label>  
+          <input type="radio" disabled  name="conv_tv" value="20" id="conv_tvp_20">
+          <label for="conv_tv_20"> 20% </label>         
+          <input type="radio" name="conv_tv" value="0" id="conv_tv_0">
+          <label for="conv_tv_0"> 0% </label> 
         </div>   
 
         <button id="setFileInp"> <img src="ing2.png" /> Esegui Simulazione </button>

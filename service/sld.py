@@ -25,7 +25,7 @@ rule="""
 <se:Rule>
   <ogc:Filter>
      <ogc:PropertyIsEqualTo>
-       <ogc:PropertyName>element_id</ogc:PropertyName>
+       <ogc:PropertyName>%s</ogc:PropertyName>
        <ogc:Literal>%s</ogc:Literal>
      </ogc:PropertyIsEqualTo>
    </ogc:Filter>
@@ -90,13 +90,13 @@ def generaSld(resultid=''):
     resultid=v[1]
 
     if lay=='arc':
-        sql="SELECT 'result_arc' as layer_name,'arc_style' as layer_style,arc_id as element_id,mfull_dept*100 as val FROM plonegis.rpt_arcflow_sum WHERE result_id=%s;"
+        sql="SELECT 'view_arc' as layer_name,'arc_style' as layer_style,arc_id,mfull_dept*100 as val FROM plonegis.rpt_arcflow_sum WHERE result_id=%s;"
         print (sql %(resultid, ))
         cursor.execute(sql,(resultid, )) 
         rows=cursor.fetchall()
         s_rule=''
         for row in rows:
-            element_id = row[2]
+            arc_id = row[2]
             coeff = row[3]
             color="#ff0000"
             if coeff <= 50:
@@ -106,16 +106,16 @@ def generaSld(resultid=''):
             elif coeff<=80:
                 color="#ff7f00"
             s_style = (style_arc %color).strip()    
-            s_rule = (s_rule + rule%(element_id, s_style, )).strip()
+            s_rule = (s_rule + rule%('arc_id',arc_id, s_style, )).strip()
         s_layer = s_layer + (layer %(row[0], row[1], s_rule, )).strip()
 
     if lay=='node':
-        sql="SELECT 'result_node' as layer_name,'node_style' as layer_style,node_id as element_id,tot_flood*1000 as val FROM plonegis.rpt_nodeflooding_sum WHERE result_id=%s;"
+        sql="SELECT 'view_node' as layer_name,'node_style' as layer_style,node_id,tot_flood*1000 as val FROM plonegis.rpt_nodeflooding_sum WHERE result_id=%s;"
         cursor.execute(sql,(resultid, )) 
         rows=cursor.fetchall()
         s_rule=''
         for row in rows:
-            element_id = row[2]
+            node_id = row[2]
             coeff = row[3]
             color="#232323"
             if coeff <= 1:
@@ -125,16 +125,16 @@ def generaSld(resultid=''):
             elif coeff<=10:
                 color="#325780"
             s_style = (style_node %color).strip()
-            s_rule = (s_rule + rule%(element_id, s_style, )).strip()
+            s_rule = (s_rule + rule%('node_id',node_id, s_style, )).strip()
         s_layer = s_layer + (layer %(row[0], row[1], s_rule, )).strip()
 
     if lay=='sub':
-        sql="SELECT 'result_subcatchment' as layer_name,'subcatcments_style' as layer_style,subc_id as element_id,runoff_coe as val FROM plonegis.rpt_subcathrunoff_sum WHERE result_id=%s;"
+        sql="SELECT 'view_subcatchment' as layer_name,'subcatcments_style' as layer_style,subc_id,runoff_coe as val FROM plonegis.rpt_subcathrunoff_sum WHERE result_id=%s;"
         cursor.execute(sql,(resultid, )) 
         rows=cursor.fetchall()
         s_rule=''
         for row in rows:
-            element_id = row[2]
+            subc_id = row[2]
             coeff = row[3]
             color="#7bbcbc"
             if coeff <= 0.13:
@@ -144,7 +144,7 @@ def generaSld(resultid=''):
             elif coeff<=0.96:
                 color="#7bdddd"
             s_style = (style_subcatchment %color).strip()
-            s_rule = (s_rule + rule%(element_id, s_style, )).strip()
+            s_rule = (s_rule + rule%('subc_id',subc_id, s_style, )).strip()
         s_layer = s_layer + (layer %(row[0], row[1], s_rule, )).strip()   
 
     cursor.close()   

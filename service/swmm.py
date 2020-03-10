@@ -25,6 +25,7 @@ from datetime import datetime
 import random
 import string
 from sld import generaSld
+import json
 
 
 localDir = os.path.dirname(__file__)
@@ -51,6 +52,44 @@ class App:
     @cherrypy.expose
     def trigeau_sld(self,resid=''):
         return generaSld(resid)
+
+    @cherrypy.expose
+    def getExtent(self,schema_id,callback='',_=''):
+        """
+        """
+        connection = psycopg2.connect(**conn)
+        cursor = connection.cursor()
+        sql="select round(st_x(st_centroid(st_envelope(st_transform(the_geom,3857))))::numeric,2) as x,\
+        round(st_y(st_centroid(st_envelope(st_transform(the_geom,3857))))::numeric,2) as y\
+        from plonegis.view_subcatchment where schema_id=%s;"
+        cursor.execute(sql,(schema_id, )) 
+        row=cursor.fetchone()
+        cursor.close()   
+        connection.close()
+        if callback:
+            return callback + '(' + json.dumps(dict(success=1,schema=schema_id,result='20200305145816',x=float(row[0]),y=float(row[1]))) + ')'
+        else:
+            return json.dumps(dict(success=1,schema=schema_id,result='20200305145816',x=float(row[0]),y=float(row[1])))
+    
+    @cherrypy.expose
+    def pippo(self,imp='',regime='',schema_id='',anni='',callback='',_=''):
+        """
+        """
+
+        connection = psycopg2.connect(**conn)
+        cursor = connection.cursor()
+        sql="select round(st_x(st_centroid(st_envelope(st_transform(the_geom,3857))))::numeric,2) as x,\
+        round(st_y(st_centroid(st_envelope(st_transform(the_geom,3857))))::numeric,2) as y\
+        from plonegis.view_subcatchment where schema_id=%s;"
+        cursor.execute(sql,(schema_id, )) 
+        row=cursor.fetchone()
+        cursor.close()   
+        connection.close()
+        if callback:
+            return callback + '(' + json.dumps(dict(success=1,schema=schema_id,result='20200305145816',x=float(row[0]),y=float(row[1]))) + ')'
+        else:
+            return json.dumps(dict(success=1,schema=schema_id,result='20200305145816',x=float(row[0]),y=float(row[1])))
+
 
     def saveData(self,rows=[],result_id='',schema_id='',table=''):
         """
@@ -164,7 +203,7 @@ class App:
         
     
     @cherrypy.expose
-    def simulazione(self,rete='CS',schema='H',imp='15',regime='CAM',anni='2',drwh='',convpp='',convtv='',callback='',_=''):
+    def simulazione(self,schema_id='',imp='15',regime='CAM',anni='2',drwh='',convpp='',convtv='',callback='',_=''):
 
 
         #se drwh richiamo la stesa funzione per modificare il drwh
@@ -177,14 +216,14 @@ class App:
         #apro il file di base e sostituisco i valori
         filePath = "/apps/trigeau/data"
         self.path = filePath
-        fileName = "%s/%s_%s%s.inp" %(filePath,rete,schema,drwh)
+        fileName = "%s/%s%s.inp" %(filePath,schema_id,drwh)
 
         zona="Chicago"
 
         rsRandom = randomString()
 
-        sxInpFile = "/tmp/%s_%s_%s%s_sx.inp" %(rete,schema,rsRandom,drwh)
-        dxInpFile = "/tmp/%s_%s_%s_dx.inp" %(rete,schema,rsRandom)
+        sxInpFile = "/tmp/%s_%s%s_sx.inp" %(schema_id,rsRandom,drwh)
+        dxInpFile = "/tmp/%s_%s_dx.inp" %(schema_id,rsRandom)
         
         #sxInpFile = "/tmp/%s_%s%s_sx.inp" %(rete,schema,drwh)
         #dxInpFile = "/tmp/%s_%s_dx.inp" %(rete,schema)
@@ -215,10 +254,10 @@ class App:
 
         #cambio le righe a sx
         v=self.parseRow(lines[idxRainGages+3],'RG')
-        s='"%s/%s-%s%sY.txt"'%(filePath,regime,zona,anni)
+        s='"%s/raingage/%s-%s%sY.txt"'%(filePath,regime,zona,anni)
         s=s.ljust(255,' ')
         v[5]=str(s)
-        s="%s-RG"%regime
+        s="RG_%s"%regime
         s=s.ljust(13,' ')
         v[6]=str(s)
         llsx[idxRainGages+3]="".join(v)
@@ -282,7 +321,7 @@ class App:
         files=st.getFiles()
         if isfile(files[1]):
             print (files[1])
-            self.parseReport(schema,files[1])
+            self.parseReport(schema_id,files[1])
         
 
         #SE DRWH ESCO
@@ -331,9 +370,15 @@ class App:
         files=st.getFiles()
         if isfile(files[1]):
             print (files[1])
-            self.parseReport(schema,files[1])
+            self.parseReport(schema_id,files[1])
 
-        return str(self.result_id)
+        if callback:
+            return callback + '(' + json.dumps(dict(success=1,schema=schema_id,result=self.result_id)) + ')'
+        else:
+            return json.dumps(dict(success=1,schema=schema_id,result=self.result_id))
+
+
+
 
     def parseReport(self,schema_id,reportfile=""):
 
