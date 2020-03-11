@@ -308,7 +308,6 @@ class App:
 
 
         #SIMULAZIONE FILE DI SX
-        """
         try:
             st=SWMM5Simulation(str(sxInpFile))
             files=st.getFiles()
@@ -317,7 +316,7 @@ class App:
                 self.parseReport(schema_id,files[1])
         except Exception as err:
             return self.render(result=dict(success=0,message='SWMM5Error:%s' %(err)))
-        """
+
         
         #SE DRWH ESCO
         if drwh or drwh_flag:
