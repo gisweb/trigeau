@@ -34,7 +34,7 @@ absDir = os.path.join(os.getcwd(), localDir)
 config = {
     'global' : {
         'server.socket_host' : '127.0.0.1',
-        'server.socket_port' : 8080
+        'server.socket_port' : 4080
     }
 }
 
@@ -187,21 +187,6 @@ class App:
                 row.append(s)
         return row
 
-
-    @cherrypy.expose
-    def prova(self):
-
-        sw=SWMM5Simulation("/tmp/CS_H_ajbif_sx.inp")
-        print (sw.SWMM_Nnodes)
-        print (sw.Subcatch())
-        import pdb;pdb.set_trace()
-
-        files=sw.getFiles()
-        if isfile(files[1]):
-            print (files[1])
-            sw.OpenSwmmOutFile(files[2])
-        
-    
     @cherrypy.expose
     def simulazione(self,schema_id='',imp='15',regime='CAM',anni='2',drwh='',convpp='',convtv='',callback='',_=''):
 
@@ -222,8 +207,8 @@ class App:
 
         rsRandom = randomString()
 
-        sxInpFile = "/tmp/%s_%s%s_sx.inp" %(schema_id,rsRandom,drwh)
-        dxInpFile = "/tmp/%s_%s_dx.inp" %(schema_id,rsRandom)
+        sxInpFile = "./tmp/%s_%s%s_sx.inp" %(schema_id,rsRandom,drwh)
+        dxInpFile = "./tmp/%s_%s_dx.inp" %(schema_id,rsRandom)
         
         #sxInpFile = "/tmp/%s_%s%s_sx.inp" %(rete,schema,drwh)
         #dxInpFile = "/tmp/%s_%s_dx.inp" %(rete,schema)
@@ -366,11 +351,13 @@ class App:
         fdx.writelines(lldx)
         fdx.close() 
 
-        st=SWMM5Simulation(str(dxInpFile))
-        files=st.getFiles()
-        if isfile(files[1]):
-            print (files[1])
-            self.parseReport(schema_id,files[1])
+        try:
+            st=SWMM5Simulation(str(dxInpFile))
+            files=st.getFiles()
+            if isfile(files[1]):
+                print (files[1])
+                self.parseReport(schema_id,files[1])
+        ex
 
         if callback:
             return callback + '(' + json.dumps(dict(success=1,schema=schema_id,result=self.result_id)) + ')'
