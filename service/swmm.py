@@ -155,13 +155,14 @@ class App:
 
 
 
-    def calcoloArea(self,imp,tipo,areaS):
+    def calcoloArea(self,imp,tipo,areaS,conv):
         imp=int(imp)
+        conv=int(conv)
         areaS=float(areaS)
         area=0
         params={"pp":[0.05,0.2],"tv":[0.8,0.667]}
-        coeff=params[tipo][0] if imp<45 else params[tipo][0]
-        area=imp*coeff
+        coeff=params[tipo][0] if imp<45 else params[tipo][1]
+        area=areaS*imp*coeff*conv #area moltiplicata per 10^4
         return area
 
     def parseRow(self,line,sezione):
@@ -190,7 +191,7 @@ class App:
     @cherrypy.expose
     def simulazione(self,schema_id='',imp='15',regime='CAM',anni='2',drwh='',convpp='',convtv='',callback='',_=''):
 
-
+        self.callback=callback
         #se drwh richiamo la stesa funzione per modificare il drwh
         #if drwh and drwh!="DRWH_OK":
         drwh_flag=drwh!=''
@@ -227,6 +228,8 @@ class App:
                 idxRainGages = index
             if line.strip()=='[SUBCATCHMENTS]':
                 idxSubCatchments = index
+            if line.strip()=='[LID_CONTROLS]':
+                idxLidControls = index
             if line.strip()=='[LID_USAGE]':
                 idxLidUsage = index
             if line.strip()=='[ADJUSTMENTS]':
@@ -259,13 +262,13 @@ class App:
 
                 #genero i dati per LID_USAGE
                 if convpp:
-                    area=self.calcoloArea(imp,"pp",v[3])*float(convpp)
+                    area=self.calcoloArea(imp,"pp",v[3],convpp)
                     summArea=summArea+area
                     area='{:.4f}'.format(area)
                     lid=[
                         v[0],
                         "PP".ljust(17,' '),
-                        "2".ljust(13,' '),
+                        "1".ljust(13,' '),
                         area.ljust(19,' '),
                         "5.0000".ljust(13,' '),
                         "10.0000".ljust(13,' '),                                
@@ -276,7 +279,7 @@ class App:
                     leadUsage.append(lid)
 
                 if convtv:
-                    area=self.calcoloArea(imp,"tv",v[3])*float(convtv)
+                    area=self.calcoloArea(imp,"tv",v[3],convtv)
                     summArea=summArea+area
                     area='{:.4f}'.format(area)
                     lid=[
@@ -296,19 +299,26 @@ class App:
             index=index+1
             v=self.parseRow(lines[index],'SC')
 
-        fsx = open(sxInpFile, 'w')
-        fsx.writelines(llsx)
-        fsx.close() 
+        try:
+            fsx = open(sxInpFile, 'w')
+            fsx.writelines(llsx)
+            fsx.close() 
+        except IOError as err:
+            return self.render(result=dict(success=0,message='IOError:%s %s' %(err.args[-1], sxInpFile)))
+
 
         #SIMULAZIONE FILE DI SX
+        """
+        try:
+            st=SWMM5Simulation(str(sxInpFile))
+            files=st.getFiles()
+            if isfile(files[1]):
+                print (files[1])
+                self.parseReport(schema_id,files[1])
+        except Exception as err:
+            return self.render(result=dict(success=0,message='SWMM5Error:%s' %(err)))
+        """
         
-        st=SWMM5Simulation(str(sxInpFile))
-        files=st.getFiles()
-        if isfile(files[1]):
-            print (files[1])
-            self.parseReport(schema_id,files[1])
-        
-
         #SE DRWH ESCO
         if drwh or drwh_flag:
             return str(self.result_id)
@@ -318,8 +328,8 @@ class App:
 
         #FILE DI DX
         #genero le righe di dx partendo dalle modifiche a sx
-        #copio iol file di sx fino a LID_USAGE
-        for i in range(0,idxLidUsage+3):
+        #copio il file di sx fino a LID_CONTROLS
+        for i in range(0,idxLidControls+3):
             lldx.append(llsx[i])
 
         #cambio le righe subcatchment
@@ -329,7 +339,8 @@ class App:
             if v[0][:1] == "S":
                 #cambio la riga su file dx       
                 area=float(v[3])*pow(10,4)
-                impdx=66#(area*imp-summArea)/(area-summArea)                
+                areaimp=(area*float(imp))/100
+                impdx= int(((areaimp-summArea)/(area-summArea))*100)                
                 s="%s.0000"%impdx
                 s=s.ljust(13,' ')
                 v[4]=str(s)
@@ -338,7 +349,12 @@ class App:
             index=index+1
             v=self.parseRow(lines[index],'SC')
  
-        
+        #aggiungo la sezione costante dei lid_controls
+        #import pdb;pdb.set_trace()
+        flead = open('lead_controls.txt','r')
+        lldx = lldx + flead.readlines()
+        flead.close()
+
         #aggiungo LID_USAGE nuovo calcolato
         for row in leadUsage:
             lldx.append("".join(row)+"\n")
@@ -347,9 +363,13 @@ class App:
         for i in range(idxAdjustments-2,len(lines)-1):
             lldx.append(lines[i])
 
-        fdx = open(dxInpFile, 'w')
-        fdx.writelines(lldx)
-        fdx.close() 
+        try:
+            fdx = open(dxInpFile, 'w')
+            fdx.writelines(lldx)
+            fdx.close() 
+        except IOError as err:
+            return self.render(result=dict(success=0,message='IOError:%s %s' %(err.args[-1], dxInpFile)))
+
 
         try:
             st=SWMM5Simulation(str(dxInpFile))
@@ -357,14 +377,11 @@ class App:
             if isfile(files[1]):
                 print (files[1])
                 self.parseReport(schema_id,files[1])
-        ex
-
-        if callback:
-            return callback + '(' + json.dumps(dict(success=1,schema=schema_id,result=self.result_id)) + ')'
-        else:
-            return json.dumps(dict(success=1,schema=schema_id,result=self.result_id))
+        except Exception as err:
+            return self.render(result=dict(success=0,message='SWMM5Error:%s' %(err)))
 
 
+        return self.render(result=dict(success=1,schema=schema_id,result=self.result_id))
 
 
     def parseReport(self,schema_id,reportfile=""):
@@ -462,6 +479,16 @@ class App:
         self.saveData(table='indici',rows=[[nfi,nsi]],result_id=result_id,schema_id=schema_id)
         
         return result_id
+
+
+    def render(self,result):
+        """
+        restituisce i risultati
+        """
+        if self.callback:
+            return self.callback + '(' + json.dumps(result) + ')'
+        else:
+            return json.dumps(result)
 
 
     @cherrypy.expose

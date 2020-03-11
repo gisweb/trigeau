@@ -18,7 +18,7 @@ var MAPSET,PROJECT;
 
 /// inizializzo
 $.ajax({
-  url: 'http://localhost:8080/getExtent',
+  url: 'http://localhost:4080/getExtent',
   dataType: "jsonp",
   data:{"schema_id":"inscostiero_light"},
   jsonpCallback: "jsoncallback",
@@ -35,7 +35,7 @@ function setFileInp(){
 
 
   $.ajax({
-    url: "http://127.0.0.1:8080/simulazione",
+    url: "http://127.0.0.1:4080/simulazione",
     dataType: "jsonp",
     data:{
       "imp":$('[name=sup_impermeabile]:checked').val(),
