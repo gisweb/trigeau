@@ -2,11 +2,15 @@
 
 var dt = require('./myfirstmodule');
 var pp = require('./modules/maps')
-var chr = require('./modules/charts')
 
 const GISCLIENT_URL = "http://trigeau.servergis.it/gisclient/";
 const QGIS_URL = "http://trigeau.servergis.it/cgi-bin/qgis_mapserv.fcgi";
 const BASE_PATH = "/home/qgis/projects/world/";
+
+globalThis.SERVICE_URL = "http://localhost:4080"
+globalThis.SERVICE_URL = ""
+
+
 var mapset_prestazioni;
 var layer_0;
 var resultLayer;
@@ -16,9 +20,10 @@ var rete,regime;
 var MAPSET,PROJECT;
 
 
+
 /// inizializzo
 $.ajax({
-  url: '/getExtent',
+  url: globalThis.SERVICE_URL + '/getExtent',
   dataType: "jsonp",
   data:{"schema_id":"inscostiero_light"},
   jsonpCallback: "jsoncallback",
@@ -26,6 +31,12 @@ $.ajax({
   success: pp.initMaps
 
 })
+
+$("#getRepsx a").attr("disabled","disabled")
+$("#getRepdx a").attr("disabled","disabled")
+$("#getRepsx a").removeAttr("href")
+$("#getRepdx a").removeAttr("href")
+
 
 //NUOVO IPOTETICO
 function setFileInp(){
@@ -35,7 +46,7 @@ function setFileInp(){
 
 
   $.ajax({
-    url: "/simulazione",
+    url: globalThis.SERVICE_URL + '/simulazione',
     dataType: "jsonp",
     data:{
       "imp":$('[name=sup_impermeabile]:checked').val(),

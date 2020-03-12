@@ -15,6 +15,8 @@ import {register} from 'ol/proj/proj4';
 import proj4 from 'proj4';
 import Projection from 'ol/proj/Projection';
 
+var chr = require('./charts')
+
 proj4.defs('EPSG:3003','+proj=tmerc +lat_0=0 +lon_0=9 +k=0.9996 +x_0=1500000 +y_0=0 +ellps=intl +units=m +no_defs +towgs84=-104.1,-49.1,-9.9,0.971,-2.917,0.714,-11.68');
 register(proj4);
 
@@ -95,13 +97,19 @@ export function updateMaps ( response ){
 
   console.log(response)
 
+  if (response.success==0){
+  	alert(response.message)
+  	return
+  }
+
+
 	var sxFilter = 'view_node:"schema_id" = \'' + response.schema + '\';'
 	sxFilter = sxFilter + 'view_arc:"schema_id" = \'' + response.schema + '\';'
 	sxFilter = sxFilter + 'view_subcatchment:"schema_id" = \'' + response.schema + '\';'
 
-	var dxFilter = 'view_node_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.result + '\';'
-	dxFilter = dxFilter + 'view_arc_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.result + '\';'
-	dxFilter = dxFilter + 'view_subcatchment_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.result + '\''
+	var dxFilter = 'view_node_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '\';'
+	dxFilter = dxFilter + 'view_arc_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '\';'
+	dxFilter = dxFilter + 'view_subcatchment_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '\''
 
   var wms1 = globalThis.wmsLayersx.getSource();
   wms1.updateParams({ 'FILTER': sxFilter });
@@ -115,6 +123,20 @@ export function updateMaps ( response ){
   }
   wms1.refresh();
   wms2.refresh();
+
+
+  chr.updateCharts( response );
+
+  //pulsanti report
+  if (response.sxresult.rpt){
+  	$("#getRepsx").removeAttr("disabled");
+  	$("#getRepsx a").attr("href",globalThis.SERVICE_URL + "/getfile?filename=" + response.sxresult.rpt);
+  }
+  if (response.dxresult.rpt){
+  	$("#getRepdx").removeAttr("disabled");
+  	$("#getRepdx a").attr("href",globalThis.SERVICE_URL + "/getfile?filename=" + response.dxresult.rpt);
+  }
+
 
 }
 

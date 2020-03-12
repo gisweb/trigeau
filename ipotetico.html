@@ -41,7 +41,7 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      margin: -50px 0px 0px -50px;
+      margin: -100px 0px 0px -100px;
       display: none;
       }
 
@@ -87,7 +87,7 @@
         </div>
         <div>
           <span> Tipologia di rete di drenaggio: </span> <br />
-          <input type="radio" checked name="rete" value="inscostiero" id=rete_CS">
+          <input type="radio" checked name="rete" value="inscostiero" id="rete_CS">
           <label for="rete_CS"> costiero/a pettine </label>
           <input type="radio"  name="rete" value="ins_collinare" id="rete_H">
           <label for="rete_H"> collinare/radiale </label>
@@ -167,7 +167,9 @@
           <label for="conv_tv_0"> 0% </label> 
         </div>   
 
-        <button id="setFileInp"> <img src="ing2.png" /> Esegui Simulazione </button>
+        <button id="setFileInp"> <img src="execute.png" /> Esegui Simulazione </button>
+        <button disabled id="getRepsx"><a href="" target="blank_"> <img src="download.png" /> Report sx </a> </button>
+        <button disabled id="getRepdx"> <a href="" target="blank_"> <img src="download.png" /> Report dx </a> </button>
 
         <hr/>
 
@@ -199,6 +201,6 @@
 
     </div>
     <script src="ipotetico.js"></script>
-    <img id="loading-gif" width=200 src="esecuzione.gif" />
+    <img id="loading-gif" src="spinner.gif" />
   </body>
 </html>

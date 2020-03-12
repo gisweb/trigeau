@@ -28,7 +28,10 @@ var chart = new Chart(ctx, {
 });
 
 
-export function setPrestazioni( response ){
+export function updateCharts( response ){
+
+  console.log(response)
+
   var x,resp,nsr,nfr,pr,vr;
   var nsi0=0;
   var nfi0=0;
@@ -50,7 +53,62 @@ export function setPrestazioni( response ){
     return;
   }
 
+  nsi0 = response.sxresult.nsi;
+  nfi0 = response.sxresult.nfi;
+  pr0 = response.sxresult.pr;
+  vr0 = response.sxresult.vr;
 
+  nsiS = response.dxresult.nsi;
+  nfiS = response.dxresult.nfi;
+  prS = response.dxresult.pr;
+  vrS = response.dxresult.vr;
+
+
+  if (nsi0!=0){
+    nsr = ((nsi0 - nsiS)/nsi0)*100;
+  }
+  else{
+    nsr = 100;
+  }
+  if (nfi0!=0){
+    nfr = ((nfi0 - nfiS)/nfi0)*100;
+  }
+  else{
+    nfr = 100;
+  }
+  if (pr0!=0){
+    pr = ((pr0 - prS)/pr0)*100;
+  }
+  else{
+    pr = 100;
+  }
+  if (vr0!=0){
+    vr = ((vr0 - vrS)/vr0)*100;
+  }
+  else{
+    vr = 100;
+  }
+
+  $("#nsi0").text((nsi0*100).toFixed(2) + ' %');
+  $("#nfi0").text((nfi0*100).toFixed(2) + ' %');
+  $("#nsiS").text((nsiS*100).toFixed(2) + ' %');
+  $("#nfiS").text((nfiS*100).toFixed(2) + ' %');
+  $("#nsr").text((nsr).toFixed(2) + ' %');
+  $("#nfr").text((nfr).toFixed(2) + ' %');
+  $("#pr").text((pr).toFixed(2) + ' %');
+  $("#vr").text((vr).toFixed(2) + ' %');
+
+
+  //Aggiorna il grafico
+  chart.data.datasets[1].data = [vr,pr,nsr,nfr];
+  chart.update();
+
+}
+
+
+/*  return
+
+  var flag
   if (flag){
     for (resp in response){
       if (resp.indexOf('_CS_')>-1){
@@ -94,44 +152,4 @@ export function setPrestazioni( response ){
       }
     }
   }
-
-  if (nsi0!=0){
-    nsr = ((nsi0 - nsiS)/nsi0)*100;
-  }
-  else{
-    nsr = 100;
-  }
-  if (nfi0!=0){
-    nfr = ((nfi0 - nfiS)/nfi0)*100;
-  }
-  else{
-    nfr = 100;
-  }
-  if (pr0!=0){
-    pr = ((pr0 - prS)/pr0)*100;
-  }
-  else{
-    pr = 100;
-  }
-  if (vr0!=0){
-    vr = ((vr0 - vrS)/vr0)*100;
-  }
-  else{
-    vr = 100;
-  }
-
-  $("#nsi0").text((nsi0*100).toFixed(2) + ' %');
-  $("#nfi0").text((nfi0*100).toFixed(2) + ' %');
-  $("#nsiS").text((nsiS*100).toFixed(2) + ' %');
-  $("#nfiS").text((nfiS*100).toFixed(2) + ' %');
-  $("#nsr").text((nsr).toFixed(2) + ' %');
-  $("#nfr").text((nfr).toFixed(2) + ' %');
-  $("#pr").text((pr).toFixed(2) + ' %');
-  $("#vr").text((vr).toFixed(2) + ' %');
-
-
-  //Aggiorna il grafico
-  chart.data.datasets[1].data = [vr,pr,nsr,nfr];
-  chart.update();
-
-}
+*/

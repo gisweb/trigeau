@@ -69,28 +69,8 @@ class App:
         if callback:
             return callback + '(' + json.dumps(dict(success=1,schema=schema_id,result='20200305145816',x=float(row[0]),y=float(row[1]))) + ')'
         else:
-            return json.dumps(dict(success=1,schema=schema_id,result='20200305145816',x=float(row[0]),y=float(row[1])))
+            return dict(success=1,schema=schema_id,result='20200305145816',x=float(row[0]),y=float(row[1]))
     
-    @cherrypy.expose
-    def pippo(self,imp='',regime='',schema_id='',anni='',callback='',_=''):
-        """
-        """
-
-        connection = psycopg2.connect(**conn)
-        cursor = connection.cursor()
-        sql="select round(st_x(st_centroid(st_envelope(st_transform(the_geom,3857))))::numeric,2) as x,\
-        round(st_y(st_centroid(st_envelope(st_transform(the_geom,3857))))::numeric,2) as y\
-        from plonegis.view_subcatchment where schema_id=%s;"
-        cursor.execute(sql,(schema_id, )) 
-        row=cursor.fetchone()
-        cursor.close()   
-        connection.close()
-        if callback:
-            return callback + '(' + json.dumps(dict(success=1,schema=schema_id,result='20200305145816',x=float(row[0]),y=float(row[1]))) + ')'
-        else:
-            return json.dumps(dict(success=1,schema=schema_id,result='20200305145816',x=float(row[0]),y=float(row[1])))
-
-
     def saveData(self,rows=[],result_id='',schema_id='',table=''):
         """
         """
@@ -128,17 +108,15 @@ class App:
                     (result_id,schema_id,arc_id,arc_type,max_flow,time_days,time_hour,max_veloc,mfull_flow,mfull_dept)\
                     VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
             elif table=='indici':
-                sqlInsert="INSERT INTO plonegis."+table+" (result_id,schema_id,nfi,nsi) values (%s,%s,%s,%s);"
+                sqlInsert="INSERT INTO plonegis."+table+" (result_id,schema_id,nfi,nsi,pr,vr,reportfile) values (%s,%s,%s,%s,%s,%s,%s);"
     
 
             sql="DELETE FROM plonegis.%s WHERE schema_id='%s';" %(table,schema_id)
             cursor.execute(sql) 
             connection.commit()
 
-            print (table)
             for row in rows:
                 row=tuple([result_id,schema_id]+row)
-                print(sqlInsert %row)
                 cursor.execute(sqlInsert,row) 
                 connection.commit()
 
@@ -152,10 +130,7 @@ class App:
                     connection.close()
                     print ("PostgreSQL connection is closed")
 
-
-
-
-    def calcoloArea(self,imp,tipo,areaS,conv):
+    def getArea(self,imp,tipo,areaS,conv):
         imp=int(imp)
         conv=int(conv)
         areaS=float(areaS)
@@ -200,19 +175,23 @@ class App:
             imp=int((int(imp)-30)/0.7)
 
         #apro il file di base e sostituisco i valori
-        filePath = "/apps/trigeau/data"
-        self.path = filePath
-        fileName = "%s/%s%s.inp" %(filePath,schema_id,drwh)
+        inpPath = "../data"
+        self.path = inpPath
+        fileName = "%s/%s%s.inp" %(inpPath,schema_id,drwh)
 
         zona="Chicago"
 
         rsRandom = randomString()
 
+        #mi calcolo l'extent
+        ret = self.getExtent(schema_id=schema_id)
+        xCenter=0;yCenter=0
+        if ret:
+            xCenter=ret["x"]
+            yCenter=ret["y"]
+
         sxInpFile = "./tmp/%s_%s%s_sx.inp" %(schema_id,rsRandom,drwh)
         dxInpFile = "./tmp/%s_%s_dx.inp" %(schema_id,rsRandom)
-        
-        #sxInpFile = "/tmp/%s_%s%s_sx.inp" %(rete,schema,drwh)
-        #dxInpFile = "/tmp/%s_%s_dx.inp" %(rete,schema)
 
         llsx=[]
         lldx=[]
@@ -242,7 +221,7 @@ class App:
 
         #cambio le righe a sx
         v=self.parseRow(lines[idxRainGages+3],'RG')
-        s='"%s/raingage/%s-%s%sY.txt"'%(filePath,regime,zona,anni)
+        s='"%s/raingage/%s-%s%sY.txt"'%(inpPath,regime,zona,anni)
         s=s.ljust(255,' ')
         v[5]=str(s)
         s="RG_%s"%regime
@@ -252,7 +231,7 @@ class App:
 
         index = idxSubCatchments+3
         v=self.parseRow(lines[index],'SC')
-        summArea=0
+        summAreaLid=dict()
         while v!=[]:
             if v[0][:1] == "S":
                 #cambio la riga su file sx                        
@@ -262,14 +241,13 @@ class App:
 
                 #genero i dati per LID_USAGE
                 if convpp:
-                    area=self.calcoloArea(imp,"pp",v[3],convpp)
-                    summArea=summArea+area
-                    area='{:.4f}'.format(area)
+                    areaPP=self.getArea(imp,"pp",v[3],convpp)
+                    areaLid='{:.4f}'.format(areaPP)
                     lid=[
                         v[0],
                         "PP".ljust(17,' '),
                         "1".ljust(13,' '),
-                        area.ljust(19,' '),
+                        areaLid.ljust(19,' '),
                         "5.0000".ljust(13,' '),
                         "10.0000".ljust(13,' '),                                
                         "0.0000".ljust(13,' '),
@@ -279,14 +257,13 @@ class App:
                     leadUsage.append(lid)
 
                 if convtv:
-                    area=self.calcoloArea(imp,"tv",v[3],convtv)
-                    summArea=summArea+area
-                    area='{:.4f}'.format(area)
+                    areaTV=self.getArea(imp,"tv",v[3],convtv)
+                    areaLid='{:.4f}'.format(areaTV)
                     lid=[
                         v[0],
                         "TV".ljust(17,' '),
                         "1".ljust(13,' '),
-                        area.ljust(19,' '),
+                        areaLid.ljust(19,' '),
                         "11.0000".ljust(13,' '),
                         "30.0000".ljust(13,' '),
                         "0.0000".ljust(13,' '),
@@ -294,6 +271,8 @@ class App:
                         " ".ljust(13,' ')
                     ]
                     leadUsage.append(lid)
+
+                summAreaLid[v[0]]=areaPP+areaTV
 
             llsx[index]="".join(v)+"\n"
             index=index+1
@@ -313,7 +292,7 @@ class App:
             files=st.getFiles()
             if isfile(files[1]):
                 print (files[1])
-                self.parseReport(schema_id,files[1])
+                sxresult = self.parseReport(schema_id,files[1])
         except Exception as err:
             return self.render(result=dict(success=0,message='SWMM5Error:%s' %(err)))
 
@@ -339,7 +318,7 @@ class App:
                 #cambio la riga su file dx       
                 area=float(v[3])*pow(10,4)
                 areaimp=(area*float(imp))/100
-                impdx= int(((areaimp-summArea)/(area-summArea))*100)                
+                impdx= int(((areaimp-summAreaLid[v[0]])/(area-summAreaLid[v[0]]))*100)  
                 s="%s.0000"%impdx
                 s=s.ljust(13,' ')
                 v[4]=str(s)
@@ -350,7 +329,7 @@ class App:
  
         #aggiungo la sezione costante dei lid_controls
         #import pdb;pdb.set_trace()
-        flead = open('lead_controls.txt','r')
+        flead = open(inpPath + '/lead_controls.inp','r')
         lldx = lldx + flead.readlines()
         flead.close()
 
@@ -375,20 +354,17 @@ class App:
             files=st.getFiles()
             if isfile(files[1]):
                 print (files[1])
-                self.parseReport(schema_id,files[1])
+                dxresult = self.parseReport(schema_id,files[1])
         except Exception as err:
             return self.render(result=dict(success=0,message='SWMM5Error:%s' %(err)))
 
 
-        return self.render(result=dict(success=1,schema=schema_id,result=self.result_id))
+        return self.render(result=dict(success=1,schema=schema_id,x=xCenter,y=yCenter,resultid=self.result_id,sxresult=sxresult,dxresult=dxresult))
 
 
     def parseReport(self,schema_id,reportfile=""):
 
         result_id=self.result_id
-
-        #reportfile=self.path+schema_id+".rpt"
-
         fileRep = open(reportfile, 'r') 
         lines = fileRep.readlines()
         index = 0 
@@ -402,6 +378,9 @@ class App:
 
             if line.strip()=='Node Flooding Summary':
                 idxNodeFlood = index     
+
+            if line.strip()=='Outfall Loading Summary':
+                idxNodeOutfall = index     
 
             if line.strip()=='Link Flow Summary':
                 idxLink = index
@@ -474,10 +453,20 @@ class App:
         self.saveData(table='rpt_arcflow_sum',rows=ll,result_id=result_id,schema_id=schema_id)
 
 
+        index = idxNodeOutfall + 8
+        v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']] 
+        pr=0;vr=0
+        if len(v)>0:
+            try:
+                pr=float(v[3])
+                vr=float(v[4])
+            except:
+                pass
+
         ###salvo gli indici
-        self.saveData(table='indici',rows=[[nfi,nsi]],result_id=result_id,schema_id=schema_id)
+        self.saveData(table='indici',rows=[[nfi,nsi,pr,vr,reportfile]],result_id=result_id,schema_id=schema_id)
         
-        return result_id
+        return dict(nfi=nfi,nsi=nsi,pr=pr,vr=vr,rpt=reportfile)
 
 
     def render(self,result):
@@ -531,19 +520,9 @@ class App:
 
 
     @cherrypy.expose
-    def download(self,filename=''):
+    def getfile(self,filename=''):
 
-
-        with open("/tmp/CS_Huxdkbj.dat", "rb") as f:
-            byte = f.read(1)
-            while byte != "":
-                # Do stuff with byte.
-                byte = f.read(1)
-                print byte
-
-
-        return 
-        path = os.path.join(absDir, 'saved.txt')
+        path = os.path.join(absDir, filename)
         return static.serve_file(path, 'application/x-download',
                                  'attachment', os.path.basename(path))
 
@@ -559,12 +538,10 @@ class App:
 
             cursor = connection.cursor()
             # Print PostgreSQL Connection properties
-            print ( connection.get_dsn_parameters(),"\n")
 
             # Print PostgreSQL version
             cursor.execute("SELECT version();")  
             record = cursor.fetchone()
-            print ("You are connected to - ", record,"\n")
 
 
             #import pdb;pdb.set_trace()
