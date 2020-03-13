@@ -73,6 +73,9 @@ export function initMaps ( response=null ){
 	})
 
 	var sxMap = new Map({
+    interactions: defaultInteractions({
+      onFocusOnly: true
+    }),		
 	  target: 'principale',
 	  layers: [wmsLayersx],
 	  view:globalThis.Mapview
@@ -80,6 +83,9 @@ export function initMaps ( response=null ){
 	});
 
 	var dxMap = new Map({
+    interactions: defaultInteractions({
+      onFocusOnly: true
+    }),		
 	  target: 'secondaria',
 	  layers: [wmsLayerdx],
 	  view: globalThis.Mapview

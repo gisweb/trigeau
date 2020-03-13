@@ -57,6 +57,7 @@ class App:
     def getExtent(self,schema_id,callback='',_=''):
         """
         """
+        """
         connection = psycopg2.connect(**conn)
         cursor = connection.cursor()
         sql="select round(st_x(st_centroid(st_envelope(st_transform(the_geom,3857))))::numeric,2) as x,\
@@ -66,10 +67,20 @@ class App:
         row=cursor.fetchone()
         cursor.close()   
         connection.close()
+        x=float(row[0]);y=float(row[1])
+        """
+        x=0;y=0
+        if "inscostiero" in schema_id:
+            y=5519111;x=1020126
+        elif "ins_collinare" in schema_id:
+            y=5519015;x=1020126
+        elif "ins_montano" in schema_id:
+            y=5519015;x=1020400
+     
         if callback:
-            return callback + '(' + json.dumps(dict(success=1,schema=schema_id,result='20200305145816',x=float(row[0]),y=float(row[1]))) + ')'
+            return callback + '(' + json.dumps(dict(success=1,schema=schema_id,x=x,y=y)) + ')'
         else:
-            return dict(success=1,schema=schema_id,result='20200305145816',x=float(row[0]),y=float(row[1]))
+            return dict(success=1,schema=schema_id,x=x,y=y)
     
     def saveData(self,rows=[],result_id='',schema_id='',table=''):
         """
