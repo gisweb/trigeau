@@ -30,6 +30,12 @@ export function initMaps ( response=null ){
 
 	console.log(response)
 
+	if (response.success==0){
+  	alert(response.message)
+  	return
+  }
+
+
 	var sxFilter = 'view_node:"schema_id" = \'' + response.schema + '\';'
 	sxFilter = sxFilter + 'view_arc:"schema_id" = \'' + response.schema + '\';'
 	sxFilter = sxFilter + 'view_subcatchment:"schema_id" = \'' + response.schema + '\';'

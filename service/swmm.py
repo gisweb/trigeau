@@ -178,17 +178,29 @@ class App:
     def simulazione(self,schema_id='',imp='15',regime='CAM',anni='2',drwh='',convpp='',convtv='',callback='',_=''):
 
         self.callback=callback
+        inpPath = "/apps/trigeau/data"
+        #self.path = inpPath
+
         #se drwh richiamo la stesa funzione per modificare il drwh
         #if drwh and drwh!="DRWH_OK":
-        drwh_flag=drwh!=''
-        if drwh:    
-            self.simulazione(rete=rete,schema=schema,imp=imp,regime=regime,anni=anni)
-            imp=int((int(imp)-30)/0.7)
 
         #apro il file di base e sostituisco i valori
-        inpPath = "../data"
-        self.path = inpPath
-        fileName = "%s/%s%s.inp" %(inpPath,schema_id,drwh)
+        if drwh=='SI':  
+            if int(imp)<30:
+                return self.render(result=dict(success=0,message='Superficie impermeabile deve essere > 15%'))
+
+            dxresult = self.simulazione(schema_id=schema_id,imp=imp,regime=regime,anni=anni,drwh='DX',callback=callback)
+            #drwh='DX'
+            print 'DRWH SI'
+            fileName = "%s/%s_drwh.inp" %(inpPath,schema_id)
+            
+        elif drwh=='DX': 
+            print 'DRWH DX' 
+            fileName = "%s/%s_drwh.inp" %(inpPath,schema_id)
+            imp=int((int(imp)-30)/0.7)
+        else:      
+            print 'DRWH NO'    
+            fileName = "%s/%s.inp" %(inpPath,schema_id)
 
         zona="Chicago"
 
@@ -201,8 +213,8 @@ class App:
             xCenter=ret["x"]
             yCenter=ret["y"]
 
-        sxInpFile = "./tmp/%s_%s%s_sx.inp" %(schema_id,rsRandom,drwh)
-        dxInpFile = "./tmp/%s_%s_dx.inp" %(schema_id,rsRandom)
+        sxInpFile = "/tmp/%s_%s_sx.inp" %(schema_id,rsRandom)
+        dxInpFile = "/tmp/%s_%s_dx.inp" %(schema_id,rsRandom)
 
         llsx=[]
         lldx=[]
@@ -243,6 +255,7 @@ class App:
         index = idxSubCatchments+3
         v=self.parseRow(lines[index],'SC')
         summAreaLid=dict()
+        areaPP=areaTV=0
         while v!=[]:
             if v[0][:1] == "S":
                 #cambio la riga su file sx                        
@@ -305,17 +318,21 @@ class App:
                 print (files[1])
                 sxresult = self.parseReport(schema_id,files[1])
         except Exception as err:
-            return self.render(result=dict(success=0,message='SWMM5Error:%s' %(err)))
+            return self.render(result=dict(success=0,message='SWMM5Error:%s %s' %(err, sxInpFile)))
 
         
         #SE DRWH ESCO
-        if drwh or drwh_flag:
-            return str(self.result_id)
+        if drwh == 'DX':
+            print 'RITORNO SXRESULT'
+            return sxresult
+        elif drwh == 'SI':
+            return self.render(result=dict(success=1,schema=schema_id,x=xCenter,y=yCenter,resultid=self.result_id,sxresult=sxresult,dxresult=dxresult))
+
         #ALTRIMENTI SE NON PASSO NE PP NE TV ESCO
         elif not convpp+convtv:
-            return '0'
+            return self.render(result=dict(success=0,message='MANCA PP O TV'))
 
-        #FILE DI DX
+        print 'FILE DI DX'
         #genero le righe di dx partendo dalle modifiche a sx
         #copio il file di sx fino a LID_CONTROLS
         for i in range(0,idxLidControls+3):
@@ -367,7 +384,7 @@ class App:
                 print (files[1])
                 dxresult = self.parseReport(schema_id,files[1])
         except Exception as err:
-            return self.render(result=dict(success=0,message='SWMM5Error:%s' %(err)))
+            return self.render(result=dict(success=0,message='SWMM5Error:%s %s' %(err, dxInpFile)))
 
 
         return self.render(result=dict(success=1,schema=schema_id,x=xCenter,y=yCenter,resultid=self.result_id,sxresult=sxresult,dxresult=dxresult))

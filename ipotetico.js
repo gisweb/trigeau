@@ -20,7 +20,6 @@ var rete,regime;
 var MAPSET,PROJECT;
 
 
-
 /// inizializzo
 $.ajax({
   url: globalThis.SERVICE_URL + '/getExtent',
@@ -44,7 +43,6 @@ function setFileInp(){
   $("#loading-gif").show();
   $("#setFileInp").attr("disabled","disabled")
 
-
   $.ajax({
     url: globalThis.SERVICE_URL + '/simulazione',
     dataType: "jsonp",
@@ -53,7 +51,8 @@ function setFileInp(){
       "schema_id":$('[name=rete]:checked').val() + "_" + $('[name=regime]:checked').attr("schema"),
       "anni":$('[name=tempi_ritorno]:checked').val(),
       "convpp":$('[name=conv_pp]:checked').val(),
-      "convtv":$('[name=conv_tv]:checked').val()
+      "convtv":$('[name=conv_tv]:checked').val(),
+      "drwh":$('[name=riuso_meteoriche]:checked').val()
     },
     jsonpCallback: "jsoncallback",
     async: false,
@@ -65,12 +64,10 @@ function setFileInp(){
 
 function setMeteoriche(){
   var drwh = $('[name=riuso_meteoriche]:checked').val();
-  console.log(drwh)
   if (drwh=="SI")
     $(".scenari").css('visibility', 'hidden');
   else
     $(".scenari").css('visibility', 'visible');
-
 }
 
 function setImpermeabile(){
@@ -83,6 +80,9 @@ function setImpermeabile(){
     if ($(this).attr("disabled","disabled")){
     }
   })
+  $("#conv_pp_0").removeAttr('disabled');
+  $("#conv_tv_0").removeAttr('disabled');
+
   if (imp=="15"){
     $("#conv_pp_100").removeAttr('disabled');
     $("#conv_tv_100").removeAttr('disabled');
