@@ -480,7 +480,8 @@ class App:
                     count08=count08+1
             except:
                 pass
-            ll.append(v)
+            if v[1]=='CONDUIT':
+                ll.append(v)
             index=index+1
             v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]        
  
