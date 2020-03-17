@@ -122,14 +122,16 @@ class App:
                 sqlInsert="INSERT INTO plonegis."+table+" (result_id,schema_id,nfi,nsi,pr,vr,reportfile) values (%s,%s,%s,%s,%s,%s,%s);"
     
 
-            sql="DELETE FROM plonegis.%s WHERE schema_id='%s';" %(table,schema_id)
+            sql="DELETE FROM plonegis.%s WHERE schema_id='%s' and right(result_id,2)='%s';" %(table,schema_id,result_id[-2:])
             cursor.execute(sql) 
             connection.commit()
 
             for row in rows:
                 row=tuple([result_id,schema_id]+row)
+                print (sqlInsert %row)
                 cursor.execute(sqlInsert,row) 
-                connection.commit()
+
+            connection.commit()
 
         except (Exception, psycopg2.Error) as error :
             print  ("Error while connecting to PostgreSQL", error)
@@ -179,6 +181,10 @@ class App:
 
         self.callback=callback
         inpPath = "/apps/trigeau/data"
+
+        self.result_id=datetime.today().strftime("%Y%m%d%H%M%S")
+
+
         #self.path = inpPath
 
         #se drwh richiamo la stesa funzione per modificare il drwh
@@ -316,7 +322,10 @@ class App:
             files=st.getFiles()
             if isfile(files[1]):
                 print (files[1])
-                sxresult = self.parseReport(schema_id,files[1])
+                sxdx='sx'
+                if drwh=='DX':
+                    sxdx='dx'
+                sxresult = self.parseReport(schema_id,sxdx,files[1])
         except Exception as err:
             return self.render(result=dict(success=0,message='SWMM5Error:%s %s' %(err, sxInpFile)))
 
@@ -382,7 +391,7 @@ class App:
             files=st.getFiles()
             if isfile(files[1]):
                 print (files[1])
-                dxresult = self.parseReport(schema_id,files[1])
+                dxresult = self.parseReport(schema_id,'dx',files[1])
         except Exception as err:
             return self.render(result=dict(success=0,message='SWMM5Error:%s %s' %(err, dxInpFile)))
 
@@ -390,9 +399,9 @@ class App:
         return self.render(result=dict(success=1,schema=schema_id,x=xCenter,y=yCenter,resultid=self.result_id,sxresult=sxresult,dxresult=dxresult))
 
 
-    def parseReport(self,schema_id,reportfile=""):
+    def parseReport(self,schema_id,sxdx,reportfile=""):
 
-        result_id=self.result_id
+        result_id=self.result_id+'_'+sxdx
         fileRep = open(reportfile, 'r') 
         lines = fileRep.readlines()
         index = 0 

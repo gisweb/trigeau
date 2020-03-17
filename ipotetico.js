@@ -8,8 +8,7 @@ const QGIS_URL = "http://trigeau.servergis.it/cgi-bin/qgis_mapserv.fcgi";
 const BASE_PATH = "/home/qgis/projects/world/";
 
 globalThis.SERVICE_URL = "http://localhost:4080"
-globalThis.SERVICE_URL = ""
-
+globalThis.SERVICE_URL = "http://www.trigeau.servergis.it"
 
 var mapset_prestazioni;
 var layer_0;

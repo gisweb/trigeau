@@ -40,8 +40,6 @@ export function initMaps ( response=null ){
 	sxFilter = sxFilter + 'view_arc:"schema_id" = \'' + response.schema + '\';'
 	sxFilter = sxFilter + 'view_subcatchment:"schema_id" = \'' + response.schema + '\';'
 
-	console.log(sxFilter)
-
 	globalThis.wmsLayersx = new ImageLayer({
 	  source: new ImageWMS({
 	    url: 'http://www.trigeau.servergis.it/cgi-bin/qgis_mapserv.fcgi?',
@@ -55,9 +53,9 @@ export function initMaps ( response=null ){
 	  })
 	});
 
-	var dxFilter = 'view_node_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.result + '\';'
-	dxFilter = dxFilter + 'view_arc_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.result + '\';'
-	dxFilter = dxFilter + 'view_subcatchment_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.result + '\''
+	var dxFilter = 'view_node_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_dx\';'
+	dxFilter = dxFilter + 'view_arc_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_dx\';'
+	dxFilter = dxFilter + 'view_subcatchment_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_dx\''
 
 	globalThis.wmsLayerdx = new ImageLayer({
 	  source: new ImageWMS({
@@ -115,16 +113,16 @@ export function updateMaps ( response ){
   }
 
 
-	var sxFilter = 'view_node:"schema_id" = \'' + response.schema + '\';'
-	sxFilter = sxFilter + 'view_arc:"schema_id" = \'' + response.schema + '\';'
-	sxFilter = sxFilter + 'view_subcatchment:"schema_id" = \'' + response.schema + '\';'
+	var sxFilter = 'view_node_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_sx\';'
+	sxFilter = sxFilter + 'view_arc_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_sx\';'
+	sxFilter = sxFilter + 'view_subcatchment_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_sx\''
 
-	var dxFilter = 'view_node_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '\';'
-	dxFilter = dxFilter + 'view_arc_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '\';'
-	dxFilter = dxFilter + 'view_subcatchment_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '\''
+	var dxFilter = 'view_node_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_dx\';'
+	dxFilter = dxFilter + 'view_arc_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_dx\';'
+	dxFilter = dxFilter + 'view_subcatchment_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_dx\''
 
   var wms1 = globalThis.wmsLayersx.getSource();
-  wms1.updateParams({ 'FILTER': sxFilter });
+  wms1.updateParams({'LAYERS':'view_subcatchment_sum,view_arc_sum,view_node_sum', 'FILTER': sxFilter });
 
   var wms2 = globalThis.wmsLayerdx.getSource();
   wms2.updateParams({ 'FILTER': dxFilter });
