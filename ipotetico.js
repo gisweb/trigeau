@@ -7,7 +7,7 @@ const GISCLIENT_URL = "http://trigeau.servergis.it/gisclient/";
 const QGIS_URL = "http://trigeau.servergis.it/cgi-bin/qgis_mapserv.fcgi";
 const BASE_PATH = "/home/qgis/projects/world/";
 
-globalThis.SERVICE_URL = "http://localhost:4080"
+//globalThis.SERVICE_URL = "http://localhost:4080"
 globalThis.SERVICE_URL = "http://www.trigeau.servergis.it"
 
 var mapset_prestazioni;
@@ -39,7 +39,7 @@ $("#getRepdx a").removeAttr("href")
 //NUOVO IPOTETICO
 function setFileInp(){
 
-  $("#loading-gif").show();
+  $("#loading-gif").css("display", "block");
   $("#setFileInp").attr("disabled","disabled")
 
   $.ajax({

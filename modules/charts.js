@@ -90,9 +90,9 @@ export function updateCharts( response ){
   }
 
   $("#nsi0").text((nsi0*100).toFixed(2) + ' %');
-  $("#nfi0").text((nfi0*100).toFixed(2) + ' %');
+  $("#nfi0").text((nfi0).toFixed(2) + ' %');
   $("#nsiS").text((nsiS*100).toFixed(2) + ' %');
-  $("#nfiS").text((nfiS*100).toFixed(2) + ' %');
+  $("#nfiS").text((nfiS).toFixed(2) + ' %');
   $("#nsr").text((nsr).toFixed(2) + ' %');
   $("#nfr").text((nfr).toFixed(2) + ' %');
   $("#pr").text((pr).toFixed(2) + ' %');

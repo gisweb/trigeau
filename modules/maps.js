@@ -102,7 +102,7 @@ export function updateMaps ( response ){
 
   var view = globalThis.Mapview
 
-  $("#loading-gif").hide();
+  $("#loading-gif").css("display", "none");
   $("#setFileInp").removeAttr("disabled")
 
   console.log(response)
@@ -113,13 +113,13 @@ export function updateMaps ( response ){
   }
 
 
-	var sxFilter = 'view_node_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_sx\';'
-	sxFilter = sxFilter + 'view_arc_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_sx\';'
-	sxFilter = sxFilter + 'view_subcatchment_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_sx\''
+	var sxFilter = 'view_node_sum:"schema_id" = \'' + response.schema + '\' AND "result_id" IN ( \'' + response.resultid + '_sx\',\'none\' );';
+	sxFilter = sxFilter + 'view_arc_sum:"schema_id" = \'' + response.schema + '\' AND "result_id" = \'' + response.resultid + '_sx\';';
+	sxFilter = sxFilter + 'view_subcatchment_sum:"schema_id" = \'' + response.schema + '\' AND "result_id" = \'' + response.resultid + '_sx\'';
 
-	var dxFilter = 'view_node_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_dx\';'
-	dxFilter = dxFilter + 'view_arc_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_dx\';'
-	dxFilter = dxFilter + 'view_subcatchment_sum:"schema_id" = \'' + response.schema + '\' and "result_id" = \'' + response.resultid + '_dx\''
+	var dxFilter = 'view_node_sum:"schema_id" = \'' + response.schema + '\' AND "result_id" IN ( \'' + response.resultid + '_dx\',\'none\' );';
+	dxFilter = dxFilter + 'view_arc_sum:"schema_id" = \'' + response.schema + '\' AND "result_id" = \'' + response.resultid + '_dx\';';
+	dxFilter = dxFilter + 'view_subcatchment_sum:"schema_id" = \'' + response.schema + '\' AND "result_id" = \'' + response.resultid + '_dx\'';
 
   var wms1 = globalThis.wmsLayersx.getSource();
   wms1.updateParams({'LAYERS':'view_subcatchment_sum,view_arc_sum,view_node_sum', 'FILTER': sxFilter });

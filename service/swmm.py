@@ -198,7 +198,7 @@ class App:
             dxresult = self.simulazione(schema_id=schema_id,imp=imp,regime=regime,anni=anni,drwh='DX',callback=callback)
             #drwh='DX'
             print 'DRWH SI'
-            fileName = "%s/%s_drwh.inp" %(inpPath,schema_id)
+            fileName = "%s/%s.inp" %(inpPath,schema_id)
             
         elif drwh=='DX': 
             print 'DRWH DX' 
@@ -279,7 +279,7 @@ class App:
                         "1".ljust(13,' '),
                         areaLid.ljust(19,' '),
                         "5.0000".ljust(13,' '),
-                        "10.0000".ljust(13,' '),                                
+                        "5.0000".ljust(13,' '),                                
                         "0.0000".ljust(13,' '),
                         "0".ljust(13,' '),
                         " ".ljust(13,' ')
@@ -449,6 +449,7 @@ class App:
         ll=[]
         summMaxRate = 0
         nsi=0
+        nfi=0
         index=idxNodeFlood+3
         if lines[index].strip()!="No nodes were flooded.":
             index=index+7
@@ -471,7 +472,6 @@ class App:
 
         ll=[]
         count08 = 0
-        nfi = 0
         index = idxLink + 8
         v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]
         while v!=[]:
