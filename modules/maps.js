@@ -146,7 +146,13 @@ export function updateMaps ( response ){
   	$("#getRepdx").removeAttr("disabled");
   	$("#getRepdx a").attr("href",globalThis.SERVICE_URL + "/getfile?filename=" + response.dxresult.rpt);
   }
-
+  //linktemporanei
+  if (response.sxresult.inp){
+  	$("#getInpsx").attr("href",globalThis.SERVICE_URL + "/getfile?filename=" + response.sxresult.inp);
+  }
+  if (response.dxresult.inp){
+  	$("#getInpdx").attr("href",globalThis.SERVICE_URL + "/getfile?filename=" + response.dxresult.inp);
+  }
 
 }
 

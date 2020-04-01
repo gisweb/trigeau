@@ -197,15 +197,15 @@ class App:
 
             dxresult = self.simulazione(schema_id=schema_id,imp=imp,regime=regime,anni=anni,drwh='DX',callback=callback)
             #drwh='DX'
-            print 'DRWH SI'
+            #print 'DRWH SI'
             fileName = "%s/%s.inp" %(inpPath,schema_id)
             
         elif drwh=='DX': 
-            print 'DRWH DX' 
+            #print 'DRWH DX' 
             fileName = "%s/%s_drwh.inp" %(inpPath,schema_id)
             imp=int((int(imp)-30)/0.7)
         else:      
-            print 'DRWH NO'    
+            #print 'DRWH NO'    
             fileName = "%s/%s.inp" %(inpPath,schema_id)
 
         zona="Chicago"
@@ -325,7 +325,7 @@ class App:
                 sxdx='sx'
                 if drwh=='DX':
                     sxdx='dx'
-                sxresult = self.parseReport(schema_id,sxdx,files[1])
+                sxresult = self.parseReport(schema_id,sxdx,files[1],sxInpFile)
         except Exception as err:
             return self.render(result=dict(success=0,message='SWMM5Error:%s %s' %(err, sxInpFile)))
 
@@ -391,7 +391,7 @@ class App:
             files=st.getFiles()
             if isfile(files[1]):
                 print (files[1])
-                dxresult = self.parseReport(schema_id,'dx',files[1])
+                dxresult = self.parseReport(schema_id,'dx',files[1],dxInpFile)
         except Exception as err:
             return self.render(result=dict(success=0,message='SWMM5Error:%s %s' %(err, dxInpFile)))
 
@@ -399,7 +399,7 @@ class App:
         return self.render(result=dict(success=1,schema=schema_id,x=xCenter,y=yCenter,resultid=self.result_id,sxresult=sxresult,dxresult=dxresult))
 
 
-    def parseReport(self,schema_id,sxdx,reportfile=""):
+    def parseReport(self,schema_id,sxdx,reportfile="",inpfile=""):
 
         result_id=self.result_id+'_'+sxdx
         fileRep = open(reportfile, 'r') 
@@ -504,7 +504,7 @@ class App:
         ###salvo gli indici
         self.saveData(table='indici',rows=[[nfi,nsi,pr,vr,reportfile]],result_id=result_id,schema_id=schema_id)
         
-        return dict(nfi=nfi,nsi=nsi,pr=pr,vr=vr,rpt=reportfile)
+        return dict(nfi=nfi,nsi=nsi,pr=pr,vr=vr,rpt=reportfile,inp=inpfile)
 
 
     def render(self,result):

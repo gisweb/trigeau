@@ -1,5 +1,8 @@
 'use strict';
 
+//x parte server attivare source service/bin activate e lanciare python swmm.py
+//x parte client da /apps/trigeau lanciare yarn start
+//xbuild yarn run build dopo aver vuotato dist poi copio i file in dist
 var dt = require('./myfirstmodule');
 var pp = require('./modules/maps')
 
