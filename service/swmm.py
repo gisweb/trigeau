@@ -198,7 +198,7 @@ class App:
             dxresult = self.simulazione(schema_id=schema_id,imp=imp,regime=regime,anni=anni,drwh='DX',callback=callback)
             #drwh='DX'
             #print 'DRWH SI'
-            fileName = "%s/%s.inp" %(inpPath,schema_id)
+            fileName = "%s/%s_drwh.inp" %(inpPath,schema_id)
             
         elif drwh=='DX': 
             #print 'DRWH DX' 
