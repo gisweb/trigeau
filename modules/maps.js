@@ -28,8 +28,6 @@ var projection = new Projection({
 
 export function initMaps ( response=null ){
 
-	console.log(response)
-
 	if (response.success==0){
   	alert(response.message)
   	return
@@ -104,8 +102,6 @@ export function updateMaps ( response ){
 
   $("#loading-gif").css("display", "none");
   $("#setFileInp").removeAttr("disabled")
-
-  console.log(response)
 
   if (response.success==0){
   	alert(response.message)

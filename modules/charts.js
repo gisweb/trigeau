@@ -24,13 +24,19 @@ var chart = new Chart(ctx, {
     },
 
     // Configuration options go here
-    options: {}
+    options: {
+      scale: {
+        ticks: {
+          max: 100,
+          min: 0,
+          stepSize: 10
+        }
+      }
+    }
 });
 
 
 export function updateCharts( response ){
-
-  console.log(response)
 
   var x,resp,nsr,nfr,pr,vr;
   var nsi0=0;
@@ -70,24 +76,35 @@ export function updateCharts( response ){
   else{
     nsr = 100;
   }
+  if (nsr>100) nsr=100;
+  if (nsr<0) nsr=0;
+
   if (nfi0!=0){
     nfr = ((nfi0 - nfiS)/nfi0)*100;
   }
   else{
     nfr = 100;
   }
+  if (nfr>100) nfr=100;
+  if (nfr<0) nfr=0;
+
   if (pr0!=0){
     pr = ((pr0 - prS)/pr0)*100;
   }
   else{
     pr = 100;
   }
+  if (pr>100) pr=100;
+  if (pr<0) pr=0;
+
   if (vr0!=0){
     vr = ((vr0 - vrS)/vr0)*100;
   }
   else{
     vr = 100;
   }
+  if (vr>100) vr=100;
+  if (vr<0) vr=0;
 
   $("#nsi0").text((nsi0*100).toFixed(2) + ' %');
   $("#nfi0").text((nfi0).toFixed(2) + ' %');

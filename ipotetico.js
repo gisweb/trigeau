@@ -52,6 +52,7 @@ function setFileInp(){
       "imp":$('[name=sup_impermeabile]:checked').val(),
       "schema_id":$('[name=rete]:checked').val() + "_" + $('[name=regime]:checked').attr("schema"),
       "anni":$('[name=tempi_ritorno]:checked').val(),
+      "regime":$('[name=regime]:checked').val(),
       "convpp":$('[name=conv_pp]:checked').val(),
       "convtv":$('[name=conv_tv]:checked').val(),
       "drwh":$('[name=riuso_meteoriche]:checked').val()
