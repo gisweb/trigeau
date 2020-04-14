@@ -198,7 +198,7 @@ class App:
             dxresult = self.simulazione(schema_id=schema_id,imp=imp,regime=regime,anni=anni,drwh='DX',callback=callback)
             #drwh='DX'
             #print 'DRWH SI'
-            fileName = "%s/%s_drwh.inp" %(inpPath,schema_id)
+            fileName = "%s/%s.inp" %(inpPath,schema_id)
             
         elif drwh=='DX': 
             #print 'DRWH DX' 
@@ -447,7 +447,7 @@ class App:
         self.saveData(table='rpt_subcathrunoff_sum',rows=ll,result_id=result_id,schema_id=schema_id)
 
         ll=[]
-        summMaxRate = 0
+        llMaxRate = []
         nsi=0
         nfi=0
         index=idxNodeFlood+3
@@ -457,7 +457,7 @@ class App:
             while v!=[]:
                 try:
                     if float(v[2])>0:
-                        summMaxRate=summMaxRate+float(v[2])
+                        llMaxRate.append(v)
                 except:
                     pass
                 ll.append(v)
@@ -465,7 +465,7 @@ class App:
                 v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]
 
             if nodeCount>0:
-                nfi=summMaxRate/nodeCount
+                nfi=len(llMaxRate)/nodeCount
 
             self.saveData(table='rpt_nodeflooding_sum',rows=ll,result_id=result_id,schema_id=schema_id)
 
