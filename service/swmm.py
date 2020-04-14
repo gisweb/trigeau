@@ -465,7 +465,7 @@ class App:
                 v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]
 
             if nodeCount>0:
-                nfi=len(llMaxRate)/nodeCount
+                nfi=float(len(llMaxRate))/nodeCount
 
             self.saveData(table='rpt_nodeflooding_sum',rows=ll,result_id=result_id,schema_id=schema_id)
 
