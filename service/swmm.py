@@ -426,7 +426,7 @@ class App:
 
 
         ll=[]
-        index=idxNodeSum+8
+        index=idxNodeSum+5
         v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]
         while v!=[]:
             if v[1]=='JUNCTION':
@@ -463,7 +463,6 @@ class App:
                 ll.append(v)
                 index=index+1
                 v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]
-
             if nodeCount>0:
                 nfi=float(len(llMaxRate))/nodeCount
 
@@ -638,7 +637,6 @@ class App:
 
 
 
-        import pdb;pdb.set_trace()       
         st=SWMM5Simulation(upload_file)
         version = st.SWMM5_Version()
         nodes = st.SWMM_Nnodes
