@@ -456,7 +456,7 @@ class App:
             v=[x.strip() for x in lines[index].split(' ') if x.strip() not in ['','\n']]
             while v!=[]:
                 try:
-                    if float(v[2])>0:
+                    if float(v[2])>0 and float(v[1])<0.9:
                         llMaxRate.append(v)
                 except:
                     pass
