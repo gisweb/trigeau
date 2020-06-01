@@ -12,7 +12,7 @@ import inputSpinner from 'bootstrap-input-spinner';
 var GISCLIENT_URL = "http://trigeau.servergis.it/gisclient/";
 var MAPSET = getUrlParameter('mapset');
 var PROJECT = getUrlParameter('project');
-var mapset_prestazioni;
+var mapset_sx;
 var layer_0;
 var resultLayer;
 var lay_vuoto = 'vuoto.vuoto';
@@ -54,7 +54,7 @@ $.ajax({
   jsonpCallback: "jsoncallback2",
   async: false,
   success: function (response){
-    mapset_prestazioni = response;
+    mapset_sx = response;
   }
 
 })
@@ -305,14 +305,14 @@ function setPrestazioni( response ){
     }
   }
   else{
-    for (x in mapset_prestazioni){
+    for (x in mapset_sx){
       if (x.indexOf('_'+anni+'Y')>-1){
-        nsi0=mapset_prestazioni[x]["nsi"]||0;
-        nfi0=mapset_prestazioni[x]["nfi"]||0;
-        pr01=mapset_prestazioni[x]["pr"]["n1"]||0;
-        pr02=mapset_prestazioni[x]["pr"]["n2"]||0;
-        vr01=mapset_prestazioni[x]["vr"]["n1"]||0;
-        vr02=mapset_prestazioni[x]["vr"]["n2"]||0;
+        nsi0=mapset_sx[x]["nsi"]||0;
+        nfi0=mapset_sx[x]["nfi"]||0;
+        pr01=mapset_sx[x]["pr"]["n1"]||0;
+        pr02=mapset_sx[x]["pr"]["n2"]||0;
+        vr01=mapset_sx[x]["vr"]["n1"]||0;
+        vr02=mapset_sx[x]["vr"]["n2"]||0;
         for (resp in response){
           if (resp.indexOf('TOS')>-1)
             resp='T';

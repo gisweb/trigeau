@@ -27,7 +27,7 @@ try {
     $stmt = $db->prepare($sql);
     $stmt->execute();
     while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-        $result[$row["result_id"]]=array("nsi"=>floatval($row["nsi"]));
+        $result[$row["result_id"]]["nsi"]=floatval($row["nsi"]);
     }   
 } catch (Exception $e) {
     $errors[] = $e;
@@ -42,7 +42,7 @@ try {
     $stmt = $db->prepare($sql);
     $stmt->execute();
     while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-        $result[$row["result_id"]]=array("nfi"=>floatval($row["nfi"]));
+        $result[$row["result_id"]]["nfi"]=floatval($row["nfi"]);
     }   
 } catch (Exception $e) {
     $errors[] = $e;
