@@ -335,13 +335,15 @@ function setPrestazioni( response ){
   else{
     nsr = 100;
   }
+  if (nsr<0)  nsr=0;
+
   if (nfi0!=0){
     nfr = ((nfi0 - nfiS)/nfi0)*100;
   }
   else{
     nfr = 100;
   }
-
+  if (nfr<0)  nfr=0;
 
   if (pr01!=0){
     pr1 = ((pr01 - prS1)/pr01)*100;
@@ -349,13 +351,15 @@ function setPrestazioni( response ){
   else{
     pr1 = 100;
   }
+  if (pr1<0)  pr1=0;
+
   if (pr02!=0){
     pr2 = ((pr02 - prS2)/pr02)*100;
   }
   else{
     pr2 = 100;
   }
-
+  if (pr2<0)  pr2=0;
 
   if (vr01!=0){
     vr1 = ((vr01 - vrS1)/vr01)*100;
@@ -363,12 +367,15 @@ function setPrestazioni( response ){
   else{
     vr1 = 100;
   }
+  if (vr1<0) vr1=0;
+
   if (vr02!=0){
     vr2 = ((vr02 - vrS2)/vr02)*100;
   }
   else{
     vr2 = 100;
   }
+  if (vr2<0)  vr2=0;
 
   $("#nsi0").text((nsi0*100).toFixed(2) + ' %');
   $("#nfi0").text((nfi0*100).toFixed(2) + ' %');
