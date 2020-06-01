@@ -48,7 +48,7 @@ $.ajax({
 
 //Setto i dati nsi, nfi per la mappa di base
 $.ajax({
-  url: GISCLIENT_URL + 'template/trigeau/info.php',
+  url: GISCLIENT_URL + 'template/trigeau/doppio.php',
   dataType: "jsonp",
   data:{"mapset":MAPSET},
   jsonpCallback: "jsoncallback2",
@@ -62,9 +62,9 @@ $.ajax({
 $(".myspin").inputSpinner();
 
 
-var ctx = document.getElementById('myChart');
+var ctx1 = document.getElementById('myChart1');
 
-var chart = new Chart(ctx, {
+var chart1 = new Chart(ctx1, {
     // The type of chart we want to create
     type: 'radar',
 
@@ -77,8 +77,13 @@ var chart = new Chart(ctx, {
             data: [100,100,100,100]
         },       
         {
-            label: 'Prestazioni',
+            label: 'Prestazioni 1',
             borderColor: 'rgba(0,60,136,0.5)',
+            data: [0,0,0,0]
+        },
+        {
+            label: 'Prestazioni 2',
+            borderColor: 'rgba(150,60,55,0.5)',
             data: [0,0,0,0]
         }
         ]
@@ -209,21 +214,16 @@ function setLayers(){
   wms2.updateParams({'MAP':MAPSET, 'LAYERS': layers2});
   wms2.refresh();
 
-  var url=(flag)?'template/trigeau/info2.php':'template/trigeau/info.php';
+  var url=(flag)?'template/trigeau/info2.php':'template/trigeau/doppio.php';
 
   $.ajax({
     url: GISCLIENT_URL + url,
     dataType: "jsonp",
-    data:{"mapset":MAPSET,"anni":anni,"vasca":vasca,"regime":$('[name=regime]:checked').val(),"zona":$('[name=regime]:checked').attr("zona")},
+    data:{"mapset":MAPSET,"anni":anni},
     jsonpCallback: "jsoncallback",
     async: false,
     success: setPrestazioni
   })
-
-  console.log(MAPSET)
-  console.log(layers);
-  console.log(layers2);
-
 
 }
 
@@ -256,15 +256,19 @@ $('[name=intervento]').change(function(){
 })
 
 function setPrestazioni( response ){
-  var x,resp,nsr,nfr,pr,vr;
+  var x,resp,nsr,nfr,pr1,vr1,pr2,vr2;
   var nsi0=0;
   var nfi0=0;
   var nsiS=0;
   var nfiS=0;
-  var pr0=0;
-  var vr0=0;
-  var prS=0;
-  var vrS=0;  
+  var pr01=0;
+  var pr02=0;
+  var vr01=0;
+  var vr02=0;
+  var prS1=0;
+  var prS2=0;
+  var vrS1=0;  
+  var vrS2=0;    
   var anni = $('[name=tempi_ritorno]:checked').val();
 
   if (anni=='0'){
@@ -276,7 +280,6 @@ function setPrestazioni( response ){
     $("#nfr").text("");
     return;
   }
-
 
   if (flag){
     for (resp in response){
@@ -306,8 +309,10 @@ function setPrestazioni( response ){
       if (x.indexOf('_'+anni+'Y')>-1){
         nsi0=mapset_prestazioni[x]["nsi"]||0;
         nfi0=mapset_prestazioni[x]["nfi"]||0;
-        pr0=mapset_prestazioni[x]["pr"]||0;
-        vr0=mapset_prestazioni[x]["vr"]||0;
+        pr01=mapset_prestazioni[x]["pr"]["n1"]||0;
+        pr02=mapset_prestazioni[x]["pr"]["n2"]||0;
+        vr01=mapset_prestazioni[x]["vr"]["n1"]||0;
+        vr02=mapset_prestazioni[x]["vr"]["n2"]||0;
         for (resp in response){
           if (resp.indexOf('TOS')>-1)
             resp='T';
@@ -315,8 +320,10 @@ function setPrestazioni( response ){
             resp='L';
           nsiS=response[resp]["nsi"]||0;
           nfiS=response[resp]["nfi"]||0;
-          vrS=response[resp]["vr"]||0;
-          prS=response[resp]["pr"]||0;
+          vrS1=response[resp]["vr"]["n1"]||0;
+          vrS2=response[resp]["vr"]["n2"]||0;
+          prS1=response[resp]["pr"]["n1"]||0;
+          prS2=response[resp]["pr"]["n2"]||0;
         }
       }
     }
@@ -334,17 +341,33 @@ function setPrestazioni( response ){
   else{
     nfr = 100;
   }
-  if (pr0!=0){
-    pr = ((pr0 - prS)/pr0)*100;
+
+
+  if (pr01!=0){
+    pr1 = ((pr01 - prS1)/pr01)*100;
   }
   else{
-    pr = 100;
+    pr1 = 100;
   }
-  if (vr0!=0){
-    vr = ((vr0 - vrS)/vr0)*100;
+  if (pr02!=0){
+    pr2 = ((pr02 - prS2)/pr02)*100;
   }
   else{
-    vr = 100;
+    pr2 = 100;
+  }
+
+
+  if (vr01!=0){
+    vr1 = ((vr01 - vrS1)/vr01)*100;
+  }
+  else{
+    vr1 = 100;
+  }
+  if (vr02!=0){
+    vr2 = ((vr02 - vrS2)/vr02)*100;
+  }
+  else{
+    vr2 = 100;
   }
 
   $("#nsi0").text((nsi0*100).toFixed(2) + ' %');
@@ -353,13 +376,15 @@ function setPrestazioni( response ){
   $("#nfiS").text((nfiS*100).toFixed(2) + ' %');
   $("#nsr").text((nsr).toFixed(2) + ' %');
   $("#nfr").text((nfr).toFixed(2) + ' %');
-  $("#pr").text((pr).toFixed(2) + ' %');
-  $("#vr").text((vr).toFixed(2) + ' %');
-
+  $("#pr1").text((pr1).toFixed(2) + ' %');
+  $("#pr2").text((pr2).toFixed(2) + ' %');
+  $("#vr1").text((vr1).toFixed(2) + ' %');
+  $("#vr2").text((vr2).toFixed(2) + ' %');
 
   //Aggiorna il grafico
-  chart.data.datasets[1].data = [vr,pr,nsr,nfr];
-  chart.update();
+  chart1.data.datasets[1].data = [vr1,pr1,nsr,nfr];
+  chart1.data.datasets[2].data = [vr2,pr2,nsr,nfr];
+  chart1.update();
 
 }
 

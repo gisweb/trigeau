@@ -78,10 +78,7 @@
           </tbody>
         </table>
         <h5 class="title"> &nbsp;Grafico</h5>
-        <canvas id="myChart" width="100%" height="80"></canvas>
-
-
-
+        <canvas id="myChart1" width="100%" height="80"></canvas>
 
       </div>
       <div class="half secondaria">
@@ -90,11 +87,11 @@
           <label for="scenario"> Scenario: </label>
           <select id="scenario"></select> 
         </div>
-        <div>
-          <input type="radio" checked name="vasca" value="vuota" id="vasca_vuota">
-          <label for="vasca_vuota"> Vasca vuota</label>
-          <input type="radio" name="vasca" value="piena" id="vasca_piena">
-          <label for="vasca_piena"> Vasca piena</label>
+        <div style="visibility: hidden;">
+          <input type="radio" checked name="vascaxx" value="vuota" id="vasca_vuotaxx">
+          <label for="vasca_vuotaxx"> Vasca vuota</label>
+          <input type="radio" name="vascaxx" value="piena" id="vasca_pienaxx">
+          <label for="vasca_pienaxx"> Vasca piena</label>
         </div>
 
         <div id="secondaria" class="map"></div>
@@ -110,10 +107,12 @@
         <h5 class="title"> &nbsp;Prestazioni idrologiche</h5>
         <table class="table table-bordered">
           <tbody>
-            <tr><th> VR [%] </th><th> PR [%] </th></tr>
+            <tr><th> VR1 [%] </th><th> PR1 [%] </th><th> VR2 [%] </th><th> PR2 [%] </th></tr>
             <tr>
-              <td><span id="vr"></span></td>    
-              <td><span id="pr"></span></td>
+              <td><span id="vr1"></span></td>    
+              <td><span id="vr2"></span></td>    
+              <td><span id="pr1"></span></td>
+              <td><span id="pr2"></span></td>
             </tr>
           </tbody>
         </table>
@@ -126,7 +125,7 @@
 
 
     </div>
-    <script src="index.js"></script>
+    <script src="doppio.js"></script>
 
   </body>
 </html>

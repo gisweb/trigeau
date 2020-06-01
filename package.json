@@ -2,11 +2,11 @@
   "name": "testol",
   "version": "1.0.0",
   "description": "",
-  "main": "ipotetico.js",
+  "main": "doppio.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "parcel ipotetico.html",
-    "build": "parcel build --public-url . ipotetico.html"
+    "start": "parcel doppio.html",
+    "build": "parcel build --public-url . doppio.html"
   },
   "author": "",
   "license": "ISC",
